@@ -6,6 +6,7 @@ export interface UseCameraReturn {
   isLoading: boolean;
   error: string | null;
   hasPermission: boolean;
+  isReady: boolean;
   stream: MediaStream | null;
   retryPermission: () => void;
 }
@@ -18,10 +19,12 @@ export function useCamera(
   const [error, setError] = useState<string | null>(null);
   const [hasPermission, setHasPermission] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   const startCamera = useCallback(async () => {
     setIsLoading(true);
     setError(null);
+    setIsReady(false);
 
     try {
       // Stop any existing stream
@@ -43,7 +46,34 @@ export function useCamera(
       // Set stream to video element
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        await videoRef.current.play();
+
+        // Wait for video to actually start playing
+        await new Promise<void>((resolve, reject) => {
+          const video = videoRef.current;
+          if (!video) {
+            reject(new Error('Video element not found'));
+            return;
+          }
+
+          const onPlaying = () => {
+            video.removeEventListener('playing', onPlaying);
+            video.removeEventListener('error', onError);
+            resolve();
+          };
+
+          const onError = () => {
+            video.removeEventListener('playing', onPlaying);
+            video.removeEventListener('error', onError);
+            reject(new Error('Video failed to play'));
+          };
+
+          video.addEventListener('playing', onPlaying);
+          video.addEventListener('error', onError);
+
+          video.play().catch(reject);
+        });
+
+        setIsReady(true);
       }
 
       setStream(mediaStream);
@@ -124,6 +154,7 @@ export function useCamera(
     isLoading,
     error,
     hasPermission,
+    isReady,
     stream,
     retryPermission,
   };

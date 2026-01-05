@@ -30,7 +30,7 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [error, setError] = useState<string | null>(null);
 
-  const { isLoading, error: cameraError, hasPermission, retryPermission } = useCamera(
+  const { isLoading, error: cameraError, hasPermission, isReady, retryPermission } = useCamera(
     videoRef,
     facingMode
   );
@@ -247,8 +247,17 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
 
           {/* Status overlay */}
           <div className="absolute top-2 left-2 bg-black/50 px-3 py-1.5 rounded-full flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <span className="text-xs text-white">Camera Ready</span>
+            {isReady ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-xs text-white">Camera Ready</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                <span className="text-xs text-white">Starting camera...</span>
+              </>
+            )}
           </div>
 
           {/* Screen capture preview indicator */}
@@ -288,7 +297,7 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={captureSimultaneous}
-            disabled={mode === 'capturing'}
+            disabled={mode === 'capturing' || !isReady}
             className="relative w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-glow disabled:opacity-50"
           >
             {mode === 'capturing' ? (

@@ -154,7 +154,7 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       return reply.redirect(`${frontendUrl}/auth/callback?success=true&token=${encodeURIComponent(accessToken)}`);
     } catch (err) {
-      fastify.log.error('GitHub OAuth error:', err);
+      fastify.log.error({ err }, 'GitHub OAuth error');
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       return reply.redirect(`${frontendUrl}/auth/callback?error=oauth_failed`);
     }

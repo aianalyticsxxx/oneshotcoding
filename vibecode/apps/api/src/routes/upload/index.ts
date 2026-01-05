@@ -56,7 +56,7 @@ export const uploadRoutes: FastifyPluginAsync = async (fastify) => {
 
       return result;
     } catch (err) {
-      fastify.log.error('Error generating presigned URL:', err);
+      fastify.log.error({ err }, 'Error generating presigned URL');
       return reply.status(500).send({ error: 'Failed to generate upload URL' });
     }
   });

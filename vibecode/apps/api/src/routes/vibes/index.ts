@@ -106,7 +106,7 @@ export const vibeRoutes: FastifyPluginAsync = async (fastify) => {
 
       return reply.status(201).send(vibe);
     } catch (err) {
-      fastify.log.error('Error creating vibe:', err);
+      fastify.log.error({ err }, 'Error creating vibe');
       return reply.status(500).send({ error: 'Failed to create vibe' });
     }
   });

@@ -9,6 +9,7 @@ export interface UseCameraReturn {
   isReady: boolean;
   stream: MediaStream | null;
   retryPermission: () => void;
+  restartCamera: () => void;
 }
 
 export function useCamera(
@@ -114,6 +115,11 @@ export function useCamera(
     startCamera();
   }, [startCamera]);
 
+  // Restart camera (useful after screen capture disrupts the stream)
+  const restartCamera = useCallback(() => {
+    startCamera();
+  }, [startCamera]);
+
   // Start camera on mount and when facing mode changes
   useEffect(() => {
     startCamera();
@@ -157,5 +163,6 @@ export function useCamera(
     isReady,
     stream,
     retryPermission,
+    restartCamera,
   };
 }

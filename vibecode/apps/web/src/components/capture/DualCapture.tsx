@@ -30,7 +30,7 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [error, setError] = useState<string | null>(null);
 
-  const { isLoading, error: cameraError, hasPermission, isReady, retryPermission } = useCamera(
+  const { isLoading, error: cameraError, hasPermission, isReady, retryPermission, restartCamera } = useCamera(
     videoRef,
     facingMode
   );
@@ -134,6 +134,8 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
         setError('Screen sharing was denied. Please allow screen capture or try manual upload.');
         setMode('ready');
         setIsCapturing(false);
+        // Restart camera in case it got disrupted
+        restartCamera();
         return;
       }
 
@@ -144,6 +146,8 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
         setError('Failed to capture selfie. Please try again.');
         setMode('ready');
         setIsCapturing(false);
+        // Restart camera in case it got disrupted
+        restartCamera();
         return;
       }
 
@@ -158,8 +162,10 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
       setError('Failed to capture. Please try again.');
       setMode('ready');
       setIsCapturing(false);
+      // Restart camera in case it got disrupted
+      restartCamera();
     }
-  }, [captureScreenshot, captureSelfieFromVideo, onCapture]);
+  }, [captureScreenshot, captureSelfieFromVideo, onCapture, restartCamera]);
 
   // Handle manual file uploads as fallback
   const handleManualUpload = useCallback((e: ChangeEvent<HTMLInputElement>, type: 'selfie' | 'screenshot') => {

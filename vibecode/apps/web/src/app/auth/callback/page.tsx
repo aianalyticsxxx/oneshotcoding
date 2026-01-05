@@ -20,6 +20,8 @@ function CallbackContent() {
       const token = searchParams.get('token');
       const errorParam = searchParams.get('error');
 
+      console.log('[Auth Callback] Params:', { success, hasToken: !!token, errorParam, url: window.location.href });
+
       if (errorParam) {
         setError(errorParam === 'oauth_failed'
           ? 'GitHub authentication failed. Please try again.'
@@ -31,10 +33,12 @@ function CallbackContent() {
       if (success === 'true' && token) {
         // Store the token and fetch user data
         try {
+          console.log('[Auth Callback] Calling login with token...');
           await login(token);
+          console.log('[Auth Callback] Login successful, redirecting to /');
           router.replace('/');
         } catch (err) {
-          console.error('Auth login error:', err);
+          console.error('[Auth Callback] Login error:', err);
           setError('Failed to complete login. Please try again.');
           setIsProcessing(false);
         }
@@ -42,6 +46,7 @@ function CallbackContent() {
       }
 
       // No success or error - unexpected state
+      console.log('[Auth Callback] Missing success/token, showing error');
       setError('Authentication incomplete. Please try again.');
       setIsProcessing(false);
     };

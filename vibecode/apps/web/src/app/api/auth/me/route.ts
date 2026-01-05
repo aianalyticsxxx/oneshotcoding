@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_URL = process.env.API_URL || 'http://localhost:4000';
+// Use Railway API URL in production
+const API_URL = process.env.API_URL ||
+  (process.env.NODE_ENV === 'production'
+    ? 'https://vibecodeenergy-production.up.railway.app'
+    : 'http://localhost:4000');
 
 export async function GET(request: NextRequest) {
   // Get token from cookie or Authorization header

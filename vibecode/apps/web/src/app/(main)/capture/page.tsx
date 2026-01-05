@@ -10,6 +10,28 @@ import { useDailyVibe } from '@/hooks/useDailyVibe';
 import { useVibes } from '@/hooks/useVibes';
 import { api } from '@/lib/api';
 
+// Cross-browser rounded rectangle helper (ctx.roundRect is not supported in all browsers)
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.arc(x + width - radius, y + radius, radius, -Math.PI / 2, 0);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.arc(x + width - radius, y + height - radius, radius, 0, Math.PI / 2);
+  ctx.lineTo(x + radius, y + height);
+  ctx.arc(x + radius, y + height - radius, radius, Math.PI / 2, Math.PI);
+  ctx.lineTo(x, y + radius);
+  ctx.arc(x + radius, y + radius, radius, Math.PI, -Math.PI / 2);
+  ctx.closePath();
+}
+
 export default function CapturePage() {
   const router = useRouter();
   const [capturedPhotos, setCapturedPhotos] = useState<DualCaptureResult | null>(null);
@@ -79,6 +101,14 @@ export default function CapturePage() {
 
         console.log('Both images loaded, creating composite...');
 
+        // Validate images have actual dimensions
+        if (selfieImg.width === 0 || selfieImg.height === 0) {
+          throw new Error('Selfie image has zero dimensions - camera may not have captured properly');
+        }
+        if (screenshotImg.width === 0 || screenshotImg.height === 0) {
+          throw new Error('Screenshot has zero dimensions - screen capture may have failed');
+        }
+
         // Set canvas size to screenshot dimensions (or max 1920px)
         const maxWidth = 1920;
         const scale = Math.min(1, maxWidth / screenshotImg.width);
@@ -112,15 +142,13 @@ export default function CapturePage() {
         ctx.shadowOffsetX = 4;
         ctx.shadowOffsetY = 4;
         ctx.fillStyle = 'black';
-        ctx.beginPath();
-        ctx.roundRect(selfieX, selfieY, selfieSize, selfieSize, radius);
+        drawRoundedRect(ctx, selfieX, selfieY, selfieSize, selfieSize, radius);
         ctx.fill();
         ctx.restore();
 
         // Draw selfie with rounded corners
         ctx.save();
-        ctx.beginPath();
-        ctx.roundRect(selfieX, selfieY, selfieSize, selfieSize, radius);
+        drawRoundedRect(ctx, selfieX, selfieY, selfieSize, selfieSize, radius);
         ctx.clip();
 
         // Calculate selfie crop (center crop to square)
@@ -141,8 +169,7 @@ export default function CapturePage() {
         // Add thick white border around selfie
         ctx.strokeStyle = 'white';
         ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.roundRect(selfieX, selfieY, selfieSize, selfieSize, radius);
+        drawRoundedRect(ctx, selfieX, selfieY, selfieSize, selfieSize, radius);
         ctx.stroke();
 
         // Clean up URLs

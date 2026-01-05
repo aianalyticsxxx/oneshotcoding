@@ -10,7 +10,9 @@ RUN npm install --legacy-peer-deps
 
 # Copy API source code
 COPY vibecode/apps/api/src ./src
-COPY vibecode/apps/api/tsconfig.json ./
+
+# Create standalone tsconfig for Docker build
+RUN echo '{"compilerOptions":{"target":"ES2022","module":"NodeNext","moduleResolution":"NodeNext","outDir":"./dist","rootDir":"./src","strict":true,"esModuleInterop":true,"skipLibCheck":true,"resolveJsonModule":true},"include":["src/**/*"],"exclude":["node_modules","dist"]}' > tsconfig.json
 
 # Build TypeScript
 RUN npm run build

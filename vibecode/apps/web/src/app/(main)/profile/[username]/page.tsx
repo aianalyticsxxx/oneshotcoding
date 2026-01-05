@@ -67,7 +67,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (error || !data) {
+  if (error || !data || !data.user) {
     return (
       <GlassPanel className="text-center" padding="lg">
         <div className="text-5xl mb-4">😔</div>

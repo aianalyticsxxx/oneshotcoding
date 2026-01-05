@@ -54,16 +54,30 @@ export default function CapturePage() {
 
         await Promise.all([
           new Promise<void>((resolve, reject) => {
-            screenshotImg.onload = () => resolve();
-            screenshotImg.onerror = reject;
+            screenshotImg.onload = () => {
+              console.log('Screenshot loaded:', screenshotImg.width, 'x', screenshotImg.height);
+              resolve();
+            };
+            screenshotImg.onerror = (e) => {
+              console.error('Screenshot load error:', e);
+              reject(e);
+            };
             screenshotImg.src = screenshotUrl;
           }),
           new Promise<void>((resolve, reject) => {
-            selfieImg.onload = () => resolve();
-            selfieImg.onerror = reject;
+            selfieImg.onload = () => {
+              console.log('Selfie loaded:', selfieImg.width, 'x', selfieImg.height);
+              resolve();
+            };
+            selfieImg.onerror = (e) => {
+              console.error('Selfie load error:', e);
+              reject(e);
+            };
             selfieImg.src = selfieUrl;
           }),
         ]);
+
+        console.log('Both images loaded, creating composite...');
 
         // Set canvas size to screenshot dimensions (or max 1920px)
         const maxWidth = 1920;
@@ -130,17 +144,24 @@ export default function CapturePage() {
         URL.revokeObjectURL(screenshotUrl);
         URL.revokeObjectURL(selfieUrl);
 
+        console.log('Canvas composite created:', canvas.width, 'x', canvas.height);
+
         // Convert canvas to blob
         const combinedBlob = await new Promise<Blob>((resolve, reject) => {
           canvas.toBlob((blob) => {
-            if (blob) resolve(blob);
-            else reject(new Error('Failed to create image'));
+            if (blob) {
+              console.log('Combined blob created, size:', blob.size);
+              resolve(blob);
+            } else {
+              reject(new Error('Failed to create image'));
+            }
           }, 'image/jpeg', 0.9);
         });
 
         const file = new File([combinedBlob], 'vibe.jpg', {
           type: 'image/jpeg',
         });
+        console.log('File created for upload:', file.name, file.size);
 
         const { data, error: apiError } = await api.createVibe(file, caption);
 

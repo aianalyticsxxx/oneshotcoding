@@ -36,11 +36,12 @@ export async function buildApp(): Promise<FastifyInstance> {
         callback(null, true);
         return;
       }
-      // Check if origin matches allowed list or is a Railway domain
+      // Check if origin matches allowed list or is a Railway/Vercel domain
       if (
         allowedOrigins.includes(origin) ||
         origin.endsWith('.railway.app') ||
-        origin.endsWith('.up.railway.app')
+        origin.endsWith('.up.railway.app') ||
+        origin.endsWith('.vercel.app')
       ) {
         callback(null, true);
       } else {

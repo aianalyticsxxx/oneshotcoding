@@ -3,8 +3,8 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CameraCapture } from '@/components/capture/CameraCapture';
-import { PhotoPreview } from '@/components/capture/PhotoPreview';
+import { DualCapture, DualCaptureResult } from '@/components/capture/DualCapture';
+import { DualPhotoPreview } from '@/components/capture/DualPhotoPreview';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { useDailyVibe } from '@/hooks/useDailyVibe';
 import { useVibes } from '@/hooks/useVibes';
@@ -12,31 +12,133 @@ import { api } from '@/lib/api';
 
 export default function CapturePage() {
   const router = useRouter();
-  const [capturedImage, setCapturedImage] = useState<Blob | null>(null);
+  const [capturedPhotos, setCapturedPhotos] = useState<DualCaptureResult | null>(null);
   const [isPosting, setIsPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { hasPostedToday, todaysVibe, markAsPosted } = useDailyVibe();
   const { addVibe } = useVibes();
 
-  const handleCapture = useCallback((imageBlob: Blob) => {
-    setCapturedImage(imageBlob);
+  const handleCapture = useCallback((result: DualCaptureResult) => {
+    setCapturedPhotos(result);
     setError(null);
   }, []);
 
   const handleRetake = useCallback(() => {
-    setCapturedImage(null);
+    setCapturedPhotos(null);
     setError(null);
   }, []);
 
   const handlePost = useCallback(
     async (caption: string) => {
-      if (!capturedImage) return;
+      if (!capturedPhotos) return;
 
       setIsPosting(true);
       setError(null);
 
       try {
-        const file = new File([capturedImage], 'vibe.jpg', {
+        // Combine screenshot and selfie into a single image
+        // Create canvas to composite the images
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          throw new Error('Failed to create canvas context');
+        }
+
+        // Load both images
+        const screenshotImg = new Image();
+        const selfieImg = new Image();
+
+        const screenshotUrl = URL.createObjectURL(capturedPhotos.screenshot);
+        const selfieUrl = URL.createObjectURL(capturedPhotos.selfie);
+
+        await Promise.all([
+          new Promise<void>((resolve, reject) => {
+            screenshotImg.onload = () => resolve();
+            screenshotImg.onerror = reject;
+            screenshotImg.src = screenshotUrl;
+          }),
+          new Promise<void>((resolve, reject) => {
+            selfieImg.onload = () => resolve();
+            selfieImg.onerror = reject;
+            selfieImg.src = selfieUrl;
+          }),
+        ]);
+
+        // Set canvas size to screenshot dimensions (or max 1920px)
+        const maxWidth = 1920;
+        const scale = Math.min(1, maxWidth / screenshotImg.width);
+        canvas.width = screenshotImg.width * scale;
+        canvas.height = screenshotImg.height * scale;
+
+        // Draw screenshot as background
+        ctx.drawImage(screenshotImg, 0, 0, canvas.width, canvas.height);
+
+        // Draw selfie in top-left corner (BeReal style)
+        const selfieSize = Math.min(canvas.width, canvas.height) * 0.25;
+        const selfieMargin = 16;
+        const selfieX = selfieMargin;
+        const selfieY = selfieMargin;
+
+        // Draw selfie with rounded corners
+        ctx.save();
+        ctx.beginPath();
+        const radius = 12;
+        ctx.moveTo(selfieX + radius, selfieY);
+        ctx.lineTo(selfieX + selfieSize - radius, selfieY);
+        ctx.quadraticCurveTo(selfieX + selfieSize, selfieY, selfieX + selfieSize, selfieY + radius);
+        ctx.lineTo(selfieX + selfieSize, selfieY + selfieSize - radius);
+        ctx.quadraticCurveTo(selfieX + selfieSize, selfieY + selfieSize, selfieX + selfieSize - radius, selfieY + selfieSize);
+        ctx.lineTo(selfieX + radius, selfieY + selfieSize);
+        ctx.quadraticCurveTo(selfieX, selfieY + selfieSize, selfieX, selfieY + selfieSize - radius);
+        ctx.lineTo(selfieX, selfieY + radius);
+        ctx.quadraticCurveTo(selfieX, selfieY, selfieX + radius, selfieY);
+        ctx.closePath();
+        ctx.clip();
+
+        // Calculate selfie crop (center crop to square)
+        const selfieAspect = selfieImg.width / selfieImg.height;
+        let sx = 0, sy = 0, sw = selfieImg.width, sh = selfieImg.height;
+        if (selfieAspect > 1) {
+          sw = selfieImg.height;
+          sx = (selfieImg.width - sw) / 2;
+        } else {
+          sh = selfieImg.width;
+          sy = (selfieImg.height - sh) / 2;
+        }
+
+        ctx.drawImage(selfieImg, sx, sy, sw, sh, selfieX, selfieY, selfieSize, selfieSize);
+        ctx.restore();
+
+        // Add white border around selfie
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(selfieX + radius, selfieY);
+        ctx.lineTo(selfieX + selfieSize - radius, selfieY);
+        ctx.quadraticCurveTo(selfieX + selfieSize, selfieY, selfieX + selfieSize, selfieY + radius);
+        ctx.lineTo(selfieX + selfieSize, selfieY + selfieSize - radius);
+        ctx.quadraticCurveTo(selfieX + selfieSize, selfieY + selfieSize, selfieX + selfieSize - radius, selfieY + selfieSize);
+        ctx.lineTo(selfieX + radius, selfieY + selfieSize);
+        ctx.quadraticCurveTo(selfieX, selfieY + selfieSize, selfieX, selfieY + selfieSize - radius);
+        ctx.lineTo(selfieX, selfieY + radius);
+        ctx.quadraticCurveTo(selfieX, selfieY, selfieX + radius, selfieY);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Clean up URLs
+        URL.revokeObjectURL(screenshotUrl);
+        URL.revokeObjectURL(selfieUrl);
+
+        // Convert canvas to blob
+        const combinedBlob = await new Promise<Blob>((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Failed to create image'));
+          }, 'image/jpeg', 0.9);
+        });
+
+        const file = new File([combinedBlob], 'vibe.jpg', {
           type: 'image/jpeg',
         });
 
@@ -62,7 +164,7 @@ export default function CapturePage() {
         setIsPosting(false);
       }
     },
-    [capturedImage, markAsPosted, addVibe, router]
+    [capturedPhotos, markAsPosted, addVibe, router]
   );
 
   // If user has already posted today, show their vibe
@@ -101,11 +203,11 @@ export default function CapturePage() {
             Today&apos;s vibe
           </p>
           <GlassPanel padding="none" className="overflow-hidden">
-            <div className="aspect-square relative">
+            <div className="aspect-video relative">
               <img
                 src={todaysVibe.imageUrl}
                 alt="Today's vibe"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain bg-black"
               />
             </div>
             {todaysVibe.caption && (
@@ -131,9 +233,9 @@ export default function CapturePage() {
           Share your vibe
         </h1>
         <p className="text-white/60">
-          {capturedImage
+          {capturedPhotos
             ? 'Looking good! Add a caption or retake.'
-            : 'Capture a moment from your day'}
+            : 'Capture your screen + selfie'}
         </p>
       </motion.div>
 
@@ -152,17 +254,17 @@ export default function CapturePage() {
         )}
       </AnimatePresence>
 
-      {/* Camera or Preview */}
+      {/* Dual Capture or Preview */}
       <AnimatePresence mode="wait">
-        {capturedImage ? (
+        {capturedPhotos ? (
           <motion.div
             key="preview"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            <PhotoPreview
-              imageBlob={capturedImage}
+            <DualPhotoPreview
+              photos={capturedPhotos}
               onPost={handlePost}
               onRetake={handleRetake}
               isPosting={isPosting}
@@ -170,18 +272,18 @@ export default function CapturePage() {
           </motion.div>
         ) : (
           <motion.div
-            key="camera"
+            key="capture"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 20 }}
           >
-            <CameraCapture onCapture={handleCapture} />
+            <DualCapture onCapture={handleCapture} />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Tips */}
-      {!capturedImage && (
+      {!capturedPhotos && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -189,7 +291,7 @@ export default function CapturePage() {
           className="text-center"
         >
           <p className="text-white/40 text-sm">
-            Pro tip: Natural light makes the best vibes
+            Show your code + your face, BeReal style!
           </p>
         </motion.div>
       )}

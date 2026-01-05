@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd ../.. && npm install -g pnpm && pnpm install && pnpm --filter @vibecode/web build",
+  "outputDirectory": ".next",
+  "installCommand": "echo 'Install handled in buildCommand'"
+}

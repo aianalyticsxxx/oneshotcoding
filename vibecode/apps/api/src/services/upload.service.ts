@@ -74,13 +74,7 @@ export class UploadService {
     const ext = fileName ? path.extname(fileName) : this.getExtensionFromContentType(contentType);
     const key = `vibes/${userId}/${timestamp}-${randomId}${ext}`;
 
-    this.fastify.log.info({
-      bucket: this.fastify.s3Config.bucket,
-      key,
-      contentType,
-      bufferSize: buffer.length,
-      endpoint: this.fastify.s3Config.endpoint,
-    }, 'Uploading file to S3/R2');
+    this.fastify.log.info(`Uploading to R2: bucket=${this.fastify.s3Config.bucket}, key=${key}, size=${buffer.length}, endpoint=${this.fastify.s3Config.endpoint}`);
 
     const command = new PutObjectCommand({
       Bucket: this.fastify.s3Config.bucket,
@@ -94,15 +88,10 @@ export class UploadService {
 
     try {
       await this.fastify.s3.send(command);
-      this.fastify.log.info({ key }, 'File uploaded successfully');
+      this.fastify.log.info(`File uploaded successfully: ${key}`);
     } catch (err) {
-      const error = err as Error;
-      this.fastify.log.error({
-        message: error.message,
-        name: error.name,
-        code: (err as { Code?: string }).Code,
-        statusCode: (err as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode,
-      }, 'S3 upload failed');
+      const error = err as Error & { Code?: string; $metadata?: { httpStatusCode?: number } };
+      this.fastify.log.error(`S3 UPLOAD FAILED: ${error.message} | Code: ${error.Code || 'N/A'} | Status: ${error.$metadata?.httpStatusCode || 'N/A'} | Name: ${error.name}`);
       throw err;
     }
 

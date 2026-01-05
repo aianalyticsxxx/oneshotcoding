@@ -22,14 +22,11 @@ const s3PluginAsync: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   const accessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY;
   const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY || process.env.S3_SECRET_KEY;
 
-  fastify.log.info({
-    hasCredentials: !!(accessKeyId && secretAccessKey),
-    bucket: process.env.S3_BUCKET,
-    region,
-    endpoint: endpoint || 'AWS S3',
-    publicUrl: process.env.S3_PUBLIC_URL || process.env.CDN_URL || 'none',
-    accessKeyIdPrefix: accessKeyId ? accessKeyId.substring(0, 8) + '...' : 'missing',
-  }, 'Initializing S3 client');
+  const hasCredentials = !!(accessKeyId && secretAccessKey);
+  const bucket = process.env.S3_BUCKET || 'vibecode-uploads';
+  const publicUrl = process.env.S3_PUBLIC_URL || process.env.CDN_URL || 'none';
+
+  fastify.log.info(`S3 Config: hasCredentials=${hasCredentials}, bucket=${bucket}, region=${region}, endpoint=${endpoint || 'AWS S3'}, publicUrl=${publicUrl}, keyPrefix=${accessKeyId ? accessKeyId.substring(0, 8) : 'MISSING'}`);
 
   const s3Client = new S3Client({
     region,

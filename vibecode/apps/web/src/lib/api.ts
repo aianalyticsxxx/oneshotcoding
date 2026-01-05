@@ -1,7 +1,7 @@
 import { getToken } from './auth';
 
-// Use proxy in development for same-origin cookies
-const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+// Use proxy for API calls - rewrites handle routing to the correct backend
+const API_URL = '/api';
 
 export interface ApiError {
   message: string;

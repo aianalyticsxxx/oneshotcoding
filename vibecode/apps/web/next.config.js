@@ -30,7 +30,11 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    // Use Railway API for production, localhost for development
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://vibecodeenergy-production.up.railway.app'
+        : 'http://localhost:4000');
     return [
       {
         // Proxy all API routes except auth/me (handled by Next.js route)

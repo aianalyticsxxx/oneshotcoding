@@ -119,11 +119,11 @@ export default function CapturePage() {
         ctx.drawImage(screenshotImg, 0, 0, canvas.width, canvas.height);
 
         // Draw selfie in top-left corner (BeReal style) - make it bigger and more visible
-        const selfieSize = Math.min(canvas.width, canvas.height) * 0.35; // 35% of smaller dimension
-        const selfieMargin = 24;
+        const selfieSize = Math.min(canvas.width, canvas.height) * 0.45; // 45% of smaller dimension - larger!
+        const selfieMargin = 32;
         const selfieX = selfieMargin;
         const selfieY = selfieMargin;
-        const radius = 16;
+        const radius = 20;
 
         console.log('Drawing selfie overlay:', {
           selfieSize,
@@ -168,7 +168,7 @@ export default function CapturePage() {
 
         // Add thick white border around selfie
         ctx.strokeStyle = 'white';
-        ctx.lineWidth = 6;
+        ctx.lineWidth = 8;
         drawRoundedRect(ctx, selfieX, selfieY, selfieSize, selfieSize, radius);
         ctx.stroke();
 

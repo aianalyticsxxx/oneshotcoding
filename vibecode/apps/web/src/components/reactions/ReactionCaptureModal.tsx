@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/useTheme';
@@ -28,16 +28,9 @@ export function ReactionCaptureModal({
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { stream, isReady, error: cameraError, startCamera, stopCamera } = useCamera({
-    facingMode: 'user',
-    width: 256,
-    height: 256,
-  });
+  const { stream, isLoading, hasPermission, error: cameraError, retryPermission } = useCamera(videoRef, 'user');
 
-  // Start camera when modal opens
-  useState(() => {
-    startCamera();
-  });
+  const isReady = !isLoading && hasPermission && !!stream;
 
   const captureAndUpload = useCallback(async () => {
     if (!videoRef.current || !canvasRef.current || !isReady) return;
@@ -114,7 +107,6 @@ export function ReactionCaptureModal({
       }
 
       // Success!
-      stopCamera();
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to capture reaction');
@@ -122,10 +114,9 @@ export function ReactionCaptureModal({
       setIsCapturing(false);
       setIsUploading(false);
     }
-  }, [vibeId, isReady, stopCamera, onSuccess]);
+  }, [vibeId, isReady, onSuccess]);
 
   const handleClose = () => {
-    stopCamera();
     onClose();
   };
 
@@ -188,7 +179,6 @@ export function ReactionCaptureModal({
                 playsInline
                 muted
                 className="w-full h-full object-cover scale-x-[-1]"
-                srcObject={stream || undefined}
               />
 
               {/* Circular mask overlay */}

@@ -94,6 +94,16 @@ export default function CapturePage() {
         const selfieX = selfieMargin;
         const selfieY = selfieMargin;
 
+        console.log('Drawing selfie overlay:', {
+          selfieSize,
+          selfieX,
+          selfieY,
+          selfieImgWidth: selfieImg.width,
+          selfieImgHeight: selfieImg.height,
+          canvasWidth: canvas.width,
+          canvasHeight: canvas.height
+        });
+
         // Draw selfie with rounded corners
         ctx.save();
         ctx.beginPath();
@@ -122,6 +132,7 @@ export default function CapturePage() {
         }
 
         ctx.drawImage(selfieImg, sx, sy, sw, sh, selfieX, selfieY, selfieSize, selfieSize);
+        console.log('Selfie drawn to canvas at', selfieX, selfieY, 'size', selfieSize);
         ctx.restore();
 
         // Add white border around selfie

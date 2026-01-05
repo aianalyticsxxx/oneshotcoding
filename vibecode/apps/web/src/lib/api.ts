@@ -119,7 +119,7 @@ async function fetchApi<T>(
       return {
         data: null,
         error: {
-          message: errorData.message || 'An error occurred',
+          message: errorData.error || errorData.message || 'An error occurred',
           statusCode: response.status,
         },
       };
@@ -221,7 +221,7 @@ export async function uploadFile<T>(
       return {
         data: null,
         error: {
-          message: errorData.message || 'Upload failed',
+          message: errorData.error || errorData.message || 'Upload failed',
           statusCode: response.status,
         },
       };

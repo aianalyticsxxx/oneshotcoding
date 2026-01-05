@@ -31,7 +31,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "lint": "turbo lint",
     "lint:fix": "turbo lint -- --fix",
-    "prepare": "husky install",
+    "prepare": "node -e \"if (process.env.CI !== 'true' && process.env.VERCEL !== '1') { require('child_process').execSync('husky install', {stdio: 'inherit'}) }\"",
     "test": "turbo test",
     "test:coverage": "turbo test -- --coverage",
     "test:watch": "turbo test -- --watch",

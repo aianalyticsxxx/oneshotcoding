@@ -80,7 +80,10 @@ export function clearAuth(): void {
 export function getGitHubOAuthUrl(): string {
   // For OAuth redirect, we need the actual backend URL (not the proxy)
   // because GitHub redirects back to this URL
-  const apiUrl = process.env.NEXT_PUBLIC_AUTH_URL || 'http://localhost:4000';
+  const apiUrl = process.env.NEXT_PUBLIC_AUTH_URL ||
+    (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+      ? 'https://vibecodeenergy-production.up.railway.app'
+      : 'http://localhost:4000');
   return `${apiUrl}/auth/github`;
 }
 

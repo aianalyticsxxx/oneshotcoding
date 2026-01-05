@@ -2,14 +2,15 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy API package files from monorepo structure
-COPY vibecode/apps/api/package.json vibecode/apps/api/package-lock.json* ./
+# Copy only package.json (no lockfile in monorepo API)
+COPY vibecode/apps/api/package.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies fresh
+RUN npm install --legacy-peer-deps
 
 # Copy API source code
-COPY vibecode/apps/api/ .
+COPY vibecode/apps/api/src ./src
+COPY vibecode/apps/api/tsconfig.json ./
 
 # Build TypeScript
 RUN npm run build

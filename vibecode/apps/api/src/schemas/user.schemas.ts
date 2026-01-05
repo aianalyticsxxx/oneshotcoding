@@ -49,19 +49,20 @@ export const userSchemas = {
       200: {
         type: 'object',
         properties: {
-          vibes: {
+          items: {
             type: 'array',
             items: {
               type: 'object',
               properties: {
                 id: { type: 'string', format: 'uuid' },
-                content: { type: 'string' },
-                mediaUrl: { type: 'string', nullable: true },
-                mediaType: { type: 'string', nullable: true },
+                imageUrl: { type: 'string' },
+                caption: { type: 'string', nullable: true },
+                vibeDate: { type: 'string' },
                 createdAt: { type: 'string', format: 'date-time' },
-                updatedAt: { type: 'string', format: 'date-time' },
-                reactionCount: { type: 'integer' },
-                hasReacted: { type: 'boolean' },
+                sparkleCount: { type: 'integer' },
+                hasSparkled: { type: 'boolean' },
+                isLate: { type: 'boolean' },
+                lateByMinutes: { type: 'integer' },
               },
             },
           },
@@ -90,14 +91,19 @@ export const userSchemas = {
       200: {
         type: 'object',
         properties: {
-          id: { type: 'string', format: 'uuid' },
-          username: { type: 'string' },
-          displayName: { type: 'string' },
-          avatarUrl: { type: 'string', nullable: true },
-          bio: { type: 'string', nullable: true },
-          createdAt: { type: 'string', format: 'date-time' },
-          vibeCount: { type: 'integer' },
-          streakCount: { type: 'integer' },
+          user: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              username: { type: 'string' },
+              displayName: { type: 'string' },
+              avatarUrl: { type: 'string', nullable: true },
+              bio: { type: 'string', nullable: true },
+              createdAt: { type: 'string', format: 'date-time' },
+              vibeCount: { type: 'integer' },
+              streakCount: { type: 'integer' },
+            },
+          },
         },
       },
       400: {

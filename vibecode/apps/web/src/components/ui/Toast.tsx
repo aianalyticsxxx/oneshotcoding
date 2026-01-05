@@ -3,7 +3,6 @@
 import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useTheme } from '@/hooks/useTheme';
 
 type ToastType = 'success' | 'error' | 'info';
 
@@ -31,7 +30,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   const showToast = useCallback((message: string, type: ToastType = 'info') => {
-    const id = Math.random().toString(36).substr(2, 9);
+    const id = Math.random().toString(36).substring(2, 11);
     setToasts((prev) => [...prev, { id, message, type }]);
 
     // Auto remove after 3 seconds
@@ -49,23 +48,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 }
 
 function ToastContainer({ toasts, onDismiss }: { toasts: Toast[]; onDismiss: (id: string) => void }) {
-  const { theme } = useTheme();
-  const isNeumorphic = theme === 'neumorphic';
-
   const getToastStyles = (type: ToastType) => {
     switch (type) {
       case 'success':
-        return isNeumorphic
-          ? 'bg-neumorphic-base text-green-600 border border-green-500/30'
-          : 'bg-green-500/20 text-green-300 border border-green-500/30';
+        return 'bg-green-500/20 text-green-300 border border-green-500/30';
       case 'error':
-        return isNeumorphic
-          ? 'bg-neumorphic-base text-red-600 border border-red-500/30'
-          : 'bg-red-500/20 text-red-300 border border-red-500/30';
+        return 'bg-red-500/20 text-red-300 border border-red-500/30';
       default:
-        return isNeumorphic
-          ? 'bg-neumorphic-base text-neumorphic-text border border-neumorphic-text/20'
-          : 'bg-white/10 text-white border border-white/20';
+        return 'bg-white/10 text-white border border-white/20';
     }
   };
 

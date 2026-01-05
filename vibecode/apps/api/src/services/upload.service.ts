@@ -47,9 +47,7 @@ export class UploadService {
     const uploadUrl = await getSignedUrl(this.fastify.s3, command, { expiresIn });
 
     // Generate the public URL for the file
-    const fileUrl = this.fastify.s3Config.cdnUrl
-      ? `${this.fastify.s3Config.cdnUrl}/${key}`
-      : `https://${this.fastify.s3Config.bucket}.s3.${this.fastify.s3Config.region}.amazonaws.com/${key}`;
+    const fileUrl = this.getPublicUrl(key);
 
     return {
       uploadUrl,
@@ -89,9 +87,7 @@ export class UploadService {
     await this.fastify.s3.send(command);
 
     // Generate the public URL for the file
-    const fileUrl = this.fastify.s3Config.cdnUrl
-      ? `${this.fastify.s3Config.cdnUrl}/${key}`
-      : `https://${this.fastify.s3Config.bucket}.s3.${this.fastify.s3Config.region}.amazonaws.com/${key}`;
+    const fileUrl = this.getPublicUrl(key);
 
     return { fileUrl, key };
   }
@@ -104,6 +100,19 @@ export class UploadService {
       'image/webp': '.webp',
     };
     return map[contentType] || '.jpg';
+  }
+
+  /**
+   * Generate public URL for a file key
+   */
+  private getPublicUrl(key: string): string {
+    // Use configured public URL (R2.dev, custom domain, or CDN)
+    if (this.fastify.s3Config.publicUrl) {
+      return `${this.fastify.s3Config.publicUrl}/${key}`;
+    }
+
+    // Default to AWS S3 URL format
+    return `https://${this.fastify.s3Config.bucket}.s3.${this.fastify.s3Config.region}.amazonaws.com/${key}`;
   }
 
   /**
@@ -125,8 +134,8 @@ export class UploadService {
     try {
       const urlObj = new URL(url);
 
-      // Handle CDN URL
-      if (this.fastify.s3Config.cdnUrl && url.startsWith(this.fastify.s3Config.cdnUrl)) {
+      // Handle public URL (R2.dev, custom domain, CDN)
+      if (this.fastify.s3Config.publicUrl && url.startsWith(this.fastify.s3Config.publicUrl)) {
         return urlObj.pathname.slice(1); // Remove leading slash
       }
 

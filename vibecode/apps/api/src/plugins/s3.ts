@@ -8,13 +8,15 @@ declare module 'fastify' {
     s3Config: {
       bucket: string;
       region: string;
-      cdnUrl?: string;
+      endpoint?: string;
+      publicUrl?: string; // Public URL for accessing files (R2.dev or custom domain)
     };
   }
 }
 
 const s3PluginAsync: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   const region = process.env.S3_REGION || 'us-east-1';
+  const endpoint = process.env.S3_ENDPOINT; // For R2, MinIO, etc.
 
   // Support both AWS_* and S3_* naming conventions for credentials
   const accessKeyId = process.env.AWS_ACCESS_KEY_ID || process.env.S3_ACCESS_KEY;
@@ -24,10 +26,13 @@ const s3PluginAsync: FastifyPluginAsync = async (fastify: FastifyInstance) => {
     hasCredentials: !!(accessKeyId && secretAccessKey),
     bucket: process.env.S3_BUCKET,
     region,
+    endpoint: endpoint || 'AWS S3',
   }, 'Initializing S3 client');
 
   const s3Client = new S3Client({
     region,
+    endpoint,
+    forcePathStyle: !!endpoint, // Required for R2, MinIO, etc.
     credentials: accessKeyId && secretAccessKey
       ? {
           accessKeyId,
@@ -39,7 +44,9 @@ const s3PluginAsync: FastifyPluginAsync = async (fastify: FastifyInstance) => {
   const s3Config = {
     bucket: process.env.S3_BUCKET || 'vibecode-uploads',
     region,
-    cdnUrl: process.env.CDN_URL,
+    endpoint,
+    // S3_PUBLIC_URL for R2.dev URL or custom domain, CDN_URL for CloudFront etc.
+    publicUrl: process.env.S3_PUBLIC_URL || process.env.CDN_URL,
   };
 
   fastify.decorate('s3', s3Client);

@@ -188,8 +188,8 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
     setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
   }, []);
 
-  // Camera error state - show upload fallback
-  if (cameraError || !hasPermission) {
+  // Camera error state - show upload fallback (only if not loading and there's an error)
+  if (!isLoading && (cameraError || !hasPermission)) {
     return (
       <div className={cn('space-y-4', className)}>
         <GlassPanel className="p-6 text-center">

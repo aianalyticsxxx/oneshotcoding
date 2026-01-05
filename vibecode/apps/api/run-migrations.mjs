@@ -3,7 +3,6 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 
 async function migrate() {
@@ -11,7 +10,7 @@ async function migrate() {
   try {
     await pool.query("CREATE TABLE IF NOT EXISTS migrations (id SERIAL PRIMARY KEY, name VARCHAR(255) UNIQUE, applied_at TIMESTAMPTZ DEFAULT NOW())");
     const applied = (await pool.query("SELECT name FROM migrations")).rows.map(r => r.name);
-    const migrationsDir = path.join(__dirname, "dist/db/migrations");
+    const migrationsDir = "/app/dist/db/migrations";
     if (!fs.existsSync(migrationsDir)) {
       console.log("No migrations directory found, skipping");
       return;

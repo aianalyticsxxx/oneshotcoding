@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn, formatRelativeTime } from '@/lib/utils';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { Avatar } from '@/components/ui/Avatar';
@@ -20,6 +21,7 @@ export interface VibeCardProps {
 export function VibeCard({ vibe, className }: VibeCardProps) {
   const { theme } = useTheme();
   const isNeumorphic = theme === 'neumorphic';
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
     <GlassPanel className={cn('overflow-hidden', className)} padding="none">
@@ -52,22 +54,78 @@ export function VibeCard({ vibe, className }: VibeCardProps) {
         </div>
       </div>
 
-      {/* Image */}
+      {/* Image - clickable to expand */}
       <motion.div
-        className="relative aspect-square"
+        className="relative aspect-video cursor-pointer group"
         whileHover={{ scale: 1.01 }}
         transition={{ duration: 0.2 }}
+        onClick={() => setIsExpanded(true)}
       >
         <Image
           src={vibe.imageUrl}
           alt={vibe.caption || `Vibe by ${vibe.user.displayName}`}
           fill
-          className="object-cover"
+          className="object-contain bg-black"
           sizes="(max-width: 768px) 100vw, 512px"
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity" />
+        {/* Hover hint */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm bg-black/50 px-3 py-1 rounded-full">
+            Tap to expand
+          </span>
+        </div>
       </motion.div>
+
+      {/* Expanded image modal */}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+            onClick={() => setIsExpanded(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-4xl max-h-[90vh] w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="absolute -top-12 right-0 text-white/70 hover:text-white transition-colors flex items-center gap-2"
+              >
+                <span className="text-sm">Close</span>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              {/* Full image */}
+              <div className="rounded-2xl overflow-hidden">
+                <img
+                  src={vibe.imageUrl}
+                  alt={vibe.caption || `Vibe by ${vibe.user.displayName}`}
+                  className="w-full h-auto max-h-[80vh] object-contain bg-black"
+                />
+              </div>
+
+              {/* User info in modal */}
+              <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-2 rounded-full">
+                <Avatar
+                  src={vibe.user.avatarUrl}
+                  alt={vibe.user.displayName}
+                  size="sm"
+                />
+                <span className="text-white text-sm font-medium">{vibe.user.displayName}</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Footer */}
       <div className="p-4">

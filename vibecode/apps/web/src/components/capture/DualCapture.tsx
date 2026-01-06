@@ -1,15 +1,14 @@
 'use client';
 
-import { useRef, useCallback, useState, ChangeEvent } from 'react';
+import { useRef, useCallback, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { GlassPanel } from '@/components/ui/GlassPanel';
 import { Button } from '@/components/ui/Button';
-import { useCamera } from '@/hooks/useCamera';
 
 export interface DualCaptureResult {
-  selfie: Blob;
-  screenshot: Blob;
+  issueCode: Blob;  // First screenshot - the bug/issue (shown smaller)
+  fixCode: Blob;    // Second screenshot - the fix (shown larger as background)
 }
 
 export interface DualCaptureProps {
@@ -17,60 +16,17 @@ export interface DualCaptureProps {
   className?: string;
 }
 
-type CaptureMode = 'ready' | 'capturing' | 'complete';
+type CaptureStep = 'ready' | 'capturing_issue' | 'issue_captured' | 'capturing_fix' | 'complete';
 
 export function DualCapture({ onCapture, className }: DualCaptureProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const screenshotInputRef = useRef<HTMLInputElement>(null);
-
-  const [mode, setMode] = useState<CaptureMode>('ready');
+  const [step, setStep] = useState<CaptureStep>('ready');
   const [isCapturing, setIsCapturing] = useState(false);
-  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [error, setError] = useState<string | null>(null);
-
-  const { isLoading, error: cameraError, hasPermission, isReady, retryPermission, restartCamera } = useCamera(
-    videoRef,
-    facingMode
-  );
-
-  // Capture selfie from current camera feed
-  const captureSelfieFromVideo = useCallback((): Promise<Blob | null> => {
-    return new Promise((resolve) => {
-      if (!videoRef.current || !canvasRef.current) {
-        resolve(null);
-        return;
-      }
-
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-
-      if (!ctx) {
-        resolve(null);
-        return;
-      }
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      // Flip horizontally if using front camera
-      if (facingMode === 'user') {
-        ctx.translate(canvas.width, 0);
-        ctx.scale(-1, 1);
-      }
-
-      ctx.drawImage(video, 0, 0);
-
-      canvas.toBlob((blob) => {
-        resolve(blob);
-      }, 'image/jpeg', 0.9);
-    });
-  }, [facingMode]);
+  const [issueCodeBlob, setIssueCodeBlob] = useState<Blob | null>(null);
+  const [issuePreviewUrl, setIssuePreviewUrl] = useState<string | null>(null);
 
   // Capture screenshot using Screen Capture API
-  const captureScreenshot = useCallback((): Promise<Blob | null> => {
+  const captureScreenshot = useCallback((label: string): Promise<Blob | null> => {
     return new Promise(async (resolve) => {
       try {
         // Request screen capture permission
@@ -86,8 +42,7 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
         video.srcObject = stream;
         await video.play();
 
-        // Wait longer for the screen share picker to fully close
-        // and for the actual screen content to be captured
+        // Wait for the screen share picker to fully close
         await new Promise(r => setTimeout(r, 500));
 
         // Capture frame to canvas
@@ -104,6 +59,7 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
 
           // Convert to blob
           canvas.toBlob((blob) => {
+            console.log(`${label} captured:`, blob?.size);
             resolve(blob);
           }, 'image/jpeg', 0.9);
         } else {
@@ -111,121 +67,148 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
           resolve(null);
         }
       } catch (err) {
-        console.error('Screenshot error:', err);
+        console.error(`${label} capture error:`, err);
         resolve(null);
       }
     });
   }, []);
 
-  // Simultaneous capture: selfie first, then screen
-  const captureSimultaneous = useCallback(async () => {
+  // Step 1: Capture the issue/bug code screenshot
+  const captureIssueCode = useCallback(async () => {
     setError(null);
-    setMode('capturing');
+    setStep('capturing_issue');
     setIsCapturing(true);
 
     try {
-      // Capture selfie FIRST (before screen share dialog changes expression)
-      const selfie = await captureSelfieFromVideo();
+      const issueBlob = await captureScreenshot('Issue code');
 
-      if (!selfie) {
-        setError('Failed to capture selfie. Please try again.');
-        setMode('ready');
+      if (!issueBlob) {
+        setError('Screen sharing was denied. Please allow screen capture.');
+        setStep('ready');
         setIsCapturing(false);
-        restartCamera();
         return;
       }
 
-      // Now capture screenshot (user will see screen share dialog)
-      const screenshot = await captureScreenshot();
+      // Store the issue code and show preview
+      setIssueCodeBlob(issueBlob);
+      setIssuePreviewUrl(URL.createObjectURL(issueBlob));
+      setStep('issue_captured');
+      setIsCapturing(false);
+    } catch (err) {
+      console.error('Issue capture error:', err);
+      setError('Failed to capture issue code. Please try again.');
+      setStep('ready');
+      setIsCapturing(false);
+    }
+  }, [captureScreenshot]);
 
-      if (!screenshot) {
-        setError('Screen sharing was denied. Please allow screen capture or try manual upload.');
-        setMode('ready');
+  // Step 2: Capture the fix code screenshot
+  const captureFixCode = useCallback(async () => {
+    if (!issueCodeBlob) {
+      setError('Please capture the issue code first.');
+      return;
+    }
+
+    setError(null);
+    setStep('capturing_fix');
+    setIsCapturing(true);
+
+    try {
+      const fixBlob = await captureScreenshot('Fix code');
+
+      if (!fixBlob) {
+        setError('Screen sharing was denied. Please allow screen capture.');
+        setStep('issue_captured');
         setIsCapturing(false);
-        // Restart camera in case it got disrupted
-        restartCamera();
         return;
       }
 
       // Flash effect
       setTimeout(() => setIsCapturing(false), 200);
 
-      // Success! Call onCapture with both
-      onCapture({ selfie, screenshot });
-      setMode('complete');
+      // Success! Call onCapture with both screenshots
+      onCapture({ issueCode: issueCodeBlob, fixCode: fixBlob });
+      setStep('complete');
     } catch (err) {
-      console.error('Capture error:', err);
-      setError('Failed to capture. Please try again.');
-      setMode('ready');
+      console.error('Fix capture error:', err);
+      setError('Failed to capture fix code. Please try again.');
+      setStep('issue_captured');
       setIsCapturing(false);
-      // Restart camera in case it got disrupted
-      restartCamera();
     }
-  }, [captureScreenshot, captureSelfieFromVideo, onCapture, restartCamera]);
+  }, [captureScreenshot, issueCodeBlob, onCapture]);
 
-  // Handle manual file uploads as fallback
-  const handleManualUpload = useCallback((e: ChangeEvent<HTMLInputElement>, type: 'selfie' | 'screenshot') => {
-    const file = e.target.files?.[0];
-    if (!file || !file.type.startsWith('image/')) return;
-
-    // Store in a ref or state for the other upload
-    if (type === 'selfie') {
-      // Store selfie, wait for screenshot
-      fileInputRef.current?.setAttribute('data-blob', URL.createObjectURL(file));
+  // Reset to start over
+  const resetCapture = useCallback(() => {
+    if (issuePreviewUrl) {
+      URL.revokeObjectURL(issuePreviewUrl);
     }
-
-    // Reset input
-    if (e.target) {
-      e.target.value = '';
-    }
-  }, []);
-
-  const toggleCamera = useCallback(() => {
-    setFacingMode((prev) => (prev === 'user' ? 'environment' : 'user'));
-  }, []);
-
-  // Camera error state - show upload fallback (only if not loading and there's an error)
-  if (!isLoading && (cameraError || !hasPermission)) {
-    return (
-      <div className={cn('space-y-4', className)}>
-        <GlassPanel className="p-6 text-center">
-          <div className="text-4xl mb-4">📷</div>
-          <h3 className="text-xl font-semibold text-white mb-2">Camera Access Needed</h3>
-          <p className="text-white/60 mb-6">
-            {cameraError || 'Please allow camera access for the BeReal experience'}
-          </p>
-          <div className="flex flex-col gap-3">
-            <Button onClick={retryPermission} variant="gradient">
-              Try Again
-            </Button>
-          </div>
-        </GlassPanel>
-      </div>
-    );
-  }
+    setIssueCodeBlob(null);
+    setIssuePreviewUrl(null);
+    setStep('ready');
+    setError(null);
+  }, [issuePreviewUrl]);
 
   return (
     <div className={cn('space-y-4', className)}>
-      {/* Live camera preview with overlay showing what will be captured */}
+      {/* Step indicator */}
+      <div className="flex items-center justify-center gap-3 mb-4">
+        <div className={cn(
+          'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all',
+          step === 'ready' || step === 'capturing_issue'
+            ? 'bg-vibe-purple/30 text-vibe-purple-light border border-vibe-purple/50'
+            : step === 'issue_captured' || step === 'capturing_fix' || step === 'complete'
+              ? 'bg-green-500/30 text-green-300 border border-green-500/50'
+              : 'bg-white/10 text-white/50'
+        )}>
+          <span className="w-5 h-5 rounded-full bg-current/30 flex items-center justify-center text-xs">1</span>
+          <span>Issue</span>
+          {(step === 'issue_captured' || step === 'capturing_fix' || step === 'complete') && <span>✓</span>}
+        </div>
+        <div className="w-8 h-0.5 bg-white/20" />
+        <div className={cn(
+          'flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all',
+          step === 'issue_captured' || step === 'capturing_fix'
+            ? 'bg-vibe-purple/30 text-vibe-purple-light border border-vibe-purple/50'
+            : step === 'complete'
+              ? 'bg-green-500/30 text-green-300 border border-green-500/50'
+              : 'bg-white/10 text-white/50'
+        )}>
+          <span className="w-5 h-5 rounded-full bg-current/30 flex items-center justify-center text-xs">2</span>
+          <span>Fix</span>
+          {step === 'complete' && <span>✓</span>}
+        </div>
+      </div>
+
       <div className="relative">
-        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-black">
-          {/* Show loading spinner until camera is ready (not just loaded) */}
-          {(!isReady || isLoading) && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-900 z-10">
-              <div className="w-8 h-8 border-2 border-vibe-purple border-t-transparent rounded-full animate-spin" />
+        {/* Preview area */}
+        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
+          {/* Issue code preview (when captured) */}
+          {issuePreviewUrl && (
+            <div className="absolute inset-0">
+              <img
+                src={issuePreviewUrl}
+                alt="Issue code"
+                className="w-full h-full object-contain"
+              />
+              {/* Overlay showing this will be the small one */}
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="bg-black/70 px-4 py-2 rounded-lg text-center">
+                  <p className="text-white/80 text-sm">Issue captured</p>
+                  <p className="text-white/50 text-xs">This will be the small overlay</p>
+                </div>
+              </div>
             </div>
           )}
 
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className={cn(
-              'w-full h-full object-cover',
-              facingMode === 'user' && 'scale-x-[-1]'
-            )}
-          />
+          {/* Empty state */}
+          {!issuePreviewUrl && (
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-6xl mb-4">🐛</div>
+              <p className="text-white/60 text-center px-4">
+                Capture a screenshot of your <span className="text-red-400 font-semibold">buggy code</span>
+              </p>
+            </div>
+          )}
 
           {/* Capture flash effect */}
           <AnimatePresence>
@@ -235,7 +218,7 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
                 animate={{ opacity: 0 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
-                className="absolute inset-0 bg-white"
+                className="absolute inset-0 bg-white z-20"
               />
             )}
           </AnimatePresence>
@@ -248,28 +231,34 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
             <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-white/50 rounded-br-lg" />
           </div>
 
-          {/* Status overlay */}
+          {/* Status badge */}
           <div className="absolute top-2 left-2 bg-black/50 px-3 py-1.5 rounded-full flex items-center gap-2">
-            {isReady ? (
+            {step === 'ready' && (
               <>
-                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs text-white">Camera Ready</span>
+                <span className="w-2 h-2 rounded-full bg-red-500" />
+                <span className="text-xs text-white">Step 1: Capture Issue</span>
               </>
-            ) : (
+            )}
+            {step === 'capturing_issue' && (
               <>
                 <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
-                <span className="text-xs text-white">Starting camera...</span>
+                <span className="text-xs text-white">Capturing...</span>
+              </>
+            )}
+            {step === 'issue_captured' && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-green-500" />
+                <span className="text-xs text-white">Step 2: Capture Fix</span>
+              </>
+            )}
+            {step === 'capturing_fix' && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                <span className="text-xs text-white">Capturing fix...</span>
               </>
             )}
           </div>
-
-          {/* Screen capture preview indicator */}
-          <div className="absolute bottom-2 right-2 bg-black/50 px-3 py-1.5 rounded-full">
-            <span className="text-xs text-white/80">+ Screen Capture</span>
-          </div>
         </div>
-
-        <canvas ref={canvasRef} className="hidden" />
 
         {/* Error message */}
         {error && (
@@ -284,34 +273,44 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
 
         {/* Controls */}
         <div className="flex items-center justify-center gap-6 mt-6">
-          {/* Flip camera button */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={toggleCamera}
-            disabled={mode === 'capturing'}
-            className="w-12 h-12 rounded-full bg-glass-white backdrop-blur-glass border border-glass-border flex items-center justify-center text-white/80 hover:text-white transition-colors disabled:opacity-50"
-          >
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </motion.button>
+          {/* Reset button (when issue is captured) */}
+          {step === 'issue_captured' && (
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={resetCapture}
+              className="w-12 h-12 rounded-full bg-glass-white backdrop-blur-glass border border-glass-border flex items-center justify-center text-white/80 hover:text-white transition-colors"
+            >
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </motion.button>
+          )}
 
-          {/* Main capture button - captures both simultaneously */}
+          {/* Spacer when no reset button */}
+          {step !== 'issue_captured' && <div className="w-12 h-12" />}
+
+          {/* Main capture button */}
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={captureSimultaneous}
-            disabled={mode === 'capturing' || !isReady}
+            onClick={step === 'issue_captured' ? captureFixCode : captureIssueCode}
+            disabled={isCapturing}
             className="relative w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-glow disabled:opacity-50"
           >
-            {mode === 'capturing' ? (
+            {isCapturing ? (
               <div className="w-16 h-16 rounded-full bg-gradient-vibe flex items-center justify-center">
                 <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
               </div>
             ) : (
               <>
-                <motion.div className="w-16 h-16 rounded-full bg-gradient-vibe" whileHover={{ scale: 1.05 }} />
+                <motion.div
+                  className={cn(
+                    "w-16 h-16 rounded-full",
+                    step === 'issue_captured' ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-red-500 to-orange-500'
+                  )}
+                  whileHover={{ scale: 1.05 }}
+                />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-2xl">📸</span>
+                  <span className="text-2xl">{step === 'issue_captured' ? '✨' : '🐛'}</span>
                 </div>
               </>
             )}
@@ -323,7 +322,10 @@ export function DualCapture({ onCapture, className }: DualCaptureProps) {
 
         {/* Instruction text */}
         <p className="text-center text-white/50 text-sm mt-4">
-          Tap to capture your selfie + screen at once
+          {step === 'ready' && 'Tap to capture your buggy code screenshot'}
+          {step === 'capturing_issue' && 'Select the window with your issue...'}
+          {step === 'issue_captured' && 'Now capture your fixed code!'}
+          {step === 'capturing_fix' && 'Select the window with your fix...'}
         </p>
       </div>
     </div>

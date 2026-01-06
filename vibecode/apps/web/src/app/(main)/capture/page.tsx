@@ -58,8 +58,7 @@ export default function CapturePage() {
       setError(null);
 
       try {
-        // Combine screenshot and selfie into a single image
-        // Create canvas to composite the images
+        // Combine issue code (small overlay) and fix code (large background) into a single image
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
@@ -68,113 +67,133 @@ export default function CapturePage() {
         }
 
         // Load both images
-        const screenshotImg = new Image();
-        const selfieImg = new Image();
+        const fixCodeImg = new Image();    // Large background - the fix
+        const issueCodeImg = new Image();  // Small overlay - the issue/bug
 
-        const screenshotUrl = URL.createObjectURL(capturedPhotos.screenshot);
-        const selfieUrl = URL.createObjectURL(capturedPhotos.selfie);
+        const fixCodeUrl = URL.createObjectURL(capturedPhotos.fixCode);
+        const issueCodeUrl = URL.createObjectURL(capturedPhotos.issueCode);
 
         await Promise.all([
           new Promise<void>((resolve, reject) => {
-            screenshotImg.onload = () => {
-              console.log('Screenshot loaded:', screenshotImg.width, 'x', screenshotImg.height);
+            fixCodeImg.onload = () => {
+              console.log('Fix code loaded:', fixCodeImg.width, 'x', fixCodeImg.height);
               resolve();
             };
-            screenshotImg.onerror = (e) => {
-              console.error('Screenshot load error:', e);
+            fixCodeImg.onerror = (e) => {
+              console.error('Fix code load error:', e);
               reject(e);
             };
-            screenshotImg.src = screenshotUrl;
+            fixCodeImg.src = fixCodeUrl;
           }),
           new Promise<void>((resolve, reject) => {
-            selfieImg.onload = () => {
-              console.log('Selfie loaded:', selfieImg.width, 'x', selfieImg.height);
+            issueCodeImg.onload = () => {
+              console.log('Issue code loaded:', issueCodeImg.width, 'x', issueCodeImg.height);
               resolve();
             };
-            selfieImg.onerror = (e) => {
-              console.error('Selfie load error:', e);
+            issueCodeImg.onerror = (e) => {
+              console.error('Issue code load error:', e);
               reject(e);
             };
-            selfieImg.src = selfieUrl;
+            issueCodeImg.src = issueCodeUrl;
           }),
         ]);
 
         console.log('Both images loaded, creating composite...');
 
         // Validate images have actual dimensions
-        if (selfieImg.width === 0 || selfieImg.height === 0) {
-          throw new Error('Selfie image has zero dimensions - camera may not have captured properly');
+        if (issueCodeImg.width === 0 || issueCodeImg.height === 0) {
+          throw new Error('Issue code screenshot has zero dimensions');
         }
-        if (screenshotImg.width === 0 || screenshotImg.height === 0) {
-          throw new Error('Screenshot has zero dimensions - screen capture may have failed');
+        if (fixCodeImg.width === 0 || fixCodeImg.height === 0) {
+          throw new Error('Fix code screenshot has zero dimensions');
         }
 
-        // Set canvas size to screenshot dimensions (or max 1920px)
+        // Set canvas size to fix code dimensions (or max 1920px)
         const maxWidth = 1920;
-        const scale = Math.min(1, maxWidth / screenshotImg.width);
-        canvas.width = screenshotImg.width * scale;
-        canvas.height = screenshotImg.height * scale;
+        const scale = Math.min(1, maxWidth / fixCodeImg.width);
+        canvas.width = fixCodeImg.width * scale;
+        canvas.height = fixCodeImg.height * scale;
 
-        // Draw screenshot as background
-        ctx.drawImage(screenshotImg, 0, 0, canvas.width, canvas.height);
+        // Draw fix code as background (the larger image showing the solution)
+        ctx.drawImage(fixCodeImg, 0, 0, canvas.width, canvas.height);
 
-        // Draw selfie in top-left corner (BeReal style) - make it bigger and more visible
-        const selfieSize = Math.min(canvas.width, canvas.height) * 0.45; // 45% of smaller dimension - larger!
-        const selfieMargin = 32;
-        const selfieX = selfieMargin;
-        const selfieY = selfieMargin;
-        const radius = 20;
+        // Draw issue code in top-left corner (smaller overlay showing the bug)
+        // Issue is smaller (25%), Fix is the main focus
+        const overlaySize = Math.min(canvas.width, canvas.height) * 0.25; // 25% - smaller for the issue
+        const overlayMargin = 20;
+        const overlayX = overlayMargin;
+        const overlayY = overlayMargin;
+        const radius = 12;
 
-        console.log('Drawing selfie overlay:', {
-          selfieSize,
-          selfieX,
-          selfieY,
-          selfieImgWidth: selfieImg.width,
-          selfieImgHeight: selfieImg.height,
+        console.log('Drawing issue overlay:', {
+          overlaySize,
+          overlayX,
+          overlayY,
+          issueImgWidth: issueCodeImg.width,
+          issueImgHeight: issueCodeImg.height,
           canvasWidth: canvas.width,
           canvasHeight: canvas.height
         });
 
-        // Draw shadow behind selfie for visibility
+        // Draw shadow behind issue overlay
         ctx.save();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowBlur = 20;
-        ctx.shadowOffsetX = 4;
-        ctx.shadowOffsetY = 4;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetX = 3;
+        ctx.shadowOffsetY = 3;
         ctx.fillStyle = 'black';
-        drawRoundedRect(ctx, selfieX, selfieY, selfieSize, selfieSize, radius);
+        drawRoundedRect(ctx, overlayX, overlayY, overlaySize, overlaySize, radius);
         ctx.fill();
         ctx.restore();
 
-        // Draw selfie with rounded corners
+        // Draw issue code with rounded corners
         ctx.save();
-        drawRoundedRect(ctx, selfieX, selfieY, selfieSize, selfieSize, radius);
+        drawRoundedRect(ctx, overlayX, overlayY, overlaySize, overlaySize, radius);
         ctx.clip();
 
-        // Calculate selfie crop (center crop to square)
-        const selfieAspect = selfieImg.width / selfieImg.height;
-        let sx = 0, sy = 0, sw = selfieImg.width, sh = selfieImg.height;
-        if (selfieAspect > 1) {
-          sw = selfieImg.height;
-          sx = (selfieImg.width - sw) / 2;
+        // Calculate crop to fit square (center crop)
+        const issueAspect = issueCodeImg.width / issueCodeImg.height;
+        let sx = 0, sy = 0, sw = issueCodeImg.width, sh = issueCodeImg.height;
+        if (issueAspect > 1) {
+          sw = issueCodeImg.height;
+          sx = (issueCodeImg.width - sw) / 2;
         } else {
-          sh = selfieImg.width;
-          sy = (selfieImg.height - sh) / 2;
+          sh = issueCodeImg.width;
+          sy = (issueCodeImg.height - sh) / 2;
         }
 
-        ctx.drawImage(selfieImg, sx, sy, sw, sh, selfieX, selfieY, selfieSize, selfieSize);
-        console.log('Selfie drawn to canvas at', selfieX, selfieY, 'size', selfieSize);
+        ctx.drawImage(issueCodeImg, sx, sy, sw, sh, overlayX, overlayY, overlaySize, overlaySize);
+        console.log('Issue code drawn to canvas at', overlayX, overlayY, 'size', overlaySize);
         ctx.restore();
 
-        // Add thick white border around selfie
-        ctx.strokeStyle = 'white';
-        ctx.lineWidth = 8;
-        drawRoundedRect(ctx, selfieX, selfieY, selfieSize, selfieSize, radius);
+        // Add red border around issue (to indicate it's the bug)
+        ctx.strokeStyle = '#ef4444'; // red-500
+        ctx.lineWidth = 4;
+        drawRoundedRect(ctx, overlayX, overlayY, overlaySize, overlaySize, radius);
         ctx.stroke();
 
+        // Add small "BUG" label
+        ctx.save();
+        ctx.fillStyle = '#ef4444';
+        ctx.font = 'bold 14px system-ui, sans-serif';
+        const labelWidth = ctx.measureText('🐛 BUG').width + 12;
+        const labelHeight = 22;
+        const labelX = overlayX;
+        const labelY = overlayY + overlaySize + 6;
+
+        // Label background
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.9)';
+        drawRoundedRect(ctx, labelX, labelY, labelWidth, labelHeight, 6);
+        ctx.fill();
+
+        // Label text
+        ctx.fillStyle = 'white';
+        ctx.fillText('🐛 BUG', labelX + 6, labelY + 16);
+        ctx.restore();
+
         // Clean up URLs
-        URL.revokeObjectURL(screenshotUrl);
-        URL.revokeObjectURL(selfieUrl);
+        URL.revokeObjectURL(fixCodeUrl);
+        URL.revokeObjectURL(issueCodeUrl);
 
         console.log('Canvas composite created:', canvas.width, 'x', canvas.height);
 
@@ -283,12 +302,12 @@ export default function CapturePage() {
         className="text-center"
       >
         <h1 className="text-2xl font-bold text-white mb-2">
-          Share your vibe
+          Share your fix
         </h1>
         <p className="text-white/60">
           {capturedPhotos
-            ? 'Looking good! Add a caption or retake.'
-            : 'Capture your screen + selfie'}
+            ? 'Nice fix! Add a caption or retake.'
+            : 'Capture bug → then the fix'}
         </p>
       </motion.div>
 
@@ -344,7 +363,7 @@ export default function CapturePage() {
           className="text-center"
         >
           <p className="text-white/40 text-sm">
-            Show your code + your face, BeReal style!
+            Show the bug 🐛 → then your fix ✨
           </p>
         </motion.div>
       )}

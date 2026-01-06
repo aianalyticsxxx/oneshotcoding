@@ -21,15 +21,16 @@ export interface VibeCardProps {
 export function VibeCard({ vibe, className }: VibeCardProps) {
   const { theme } = useTheme();
   const isNeumorphic = theme === 'neumorphic';
-  const [isExpanded, setIsExpanded] = useState(false);
+  // null = closed, 'prompt' = zoomed to prompt overlay, 'result' = full image view
+  const [expandedView, setExpandedView] = useState<'prompt' | 'result' | null>(null);
 
   // Close modal on Escape key
   useEffect(() => {
-    if (!isExpanded) return;
+    if (!expandedView) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setIsExpanded(false);
+        setExpandedView(null);
       }
     };
 
@@ -41,7 +42,7 @@ export function VibeCard({ vibe, className }: VibeCardProps) {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = '';
     };
-  }, [isExpanded]);
+  }, [expandedView]);
 
   return (
     <GlassPanel className={cn('overflow-hidden', className)} padding="none">
@@ -74,37 +75,60 @@ export function VibeCard({ vibe, className }: VibeCardProps) {
         </div>
       </div>
 
-      {/* Image - clickable to expand */}
-      <motion.div
-        className="relative aspect-video cursor-pointer group"
-        whileHover={{ scale: 1.01 }}
-        transition={{ duration: 0.2 }}
-        onClick={() => setIsExpanded(true)}
-      >
-        <Image
-          src={vibe.imageUrl}
-          alt={vibe.caption || `Vibe by ${vibe.user.displayName}`}
-          fill
-          className="object-contain bg-black"
-          sizes="(max-width: 768px) 100vw, 512px"
-        />
-        {/* Hover hint */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-sm bg-black/50 px-3 py-1 rounded-full">
-            Tap to expand
-          </span>
-        </div>
-      </motion.div>
+      {/* Image with separate clickable regions for prompt and result */}
+      <div className="relative aspect-video bg-black">
+        {/* Main image - clicking expands as "result" view */}
+        <motion.div
+          className="absolute inset-0 cursor-pointer group"
+          whileHover={{ scale: 1.005 }}
+          transition={{ duration: 0.2 }}
+          onClick={() => setExpandedView('result')}
+        >
+          <Image
+            src={vibe.imageUrl}
+            alt={vibe.caption || `Vibe by ${vibe.user.displayName}`}
+            fill
+            className="object-contain"
+            sizes="(max-width: 768px) 100vw, 672px"
+          />
+          {/* Result label */}
+          <div className="absolute bottom-2 right-2">
+            <span className="bg-green-500/80 backdrop-blur-sm px-2 py-1 rounded text-xs text-white font-medium opacity-60 group-hover:opacity-100 transition-opacity">
+              ✨ RESULT
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Clickable prompt overlay zone (top-left corner) */}
+        <motion.div
+          className="absolute top-2 left-2 w-[30%] aspect-square cursor-pointer z-10 group/prompt"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpandedView('prompt');
+          }}
+        >
+          {/* Invisible hit area with visible hover effect */}
+          <div className="absolute inset-0 rounded-xl border-2 border-transparent group-hover/prompt:border-vibe-purple group-hover/prompt:bg-vibe-purple/10 transition-all" />
+          {/* Prompt label that appears on hover */}
+          <div className="absolute -bottom-1 left-0 opacity-0 group-hover/prompt:opacity-100 transition-opacity">
+            <span className="bg-vibe-purple/90 backdrop-blur-sm px-2 py-0.5 rounded text-[10px] text-white font-medium">
+              💬 PROMPT - tap to expand
+            </span>
+          </div>
+        </motion.div>
+      </div>
 
       {/* Expanded image modal */}
       <AnimatePresence>
-        {isExpanded && (
+        {expandedView && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-            onClick={() => setIsExpanded(false)}
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4"
+            onClick={() => setExpandedView(null)}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -115,7 +139,7 @@ export function VibeCard({ vibe, className }: VibeCardProps) {
             >
               {/* Close button */}
               <button
-                onClick={() => setIsExpanded(false)}
+                onClick={() => setExpandedView(null)}
                 className="absolute -top-12 right-0 text-white/70 hover:text-white transition-colors flex items-center gap-2"
               >
                 <span className="text-sm">Close</span>
@@ -124,17 +148,69 @@ export function VibeCard({ vibe, className }: VibeCardProps) {
                 </svg>
               </button>
 
-              {/* Full image */}
-              <div className="rounded-2xl overflow-hidden">
-                <img
-                  src={vibe.imageUrl}
-                  alt={vibe.caption || `Vibe by ${vibe.user.displayName}`}
-                  className="w-full h-auto max-h-[80vh] object-contain bg-black"
-                />
+              {/* Image with zoom based on view */}
+              <div className={cn(
+                "rounded-2xl overflow-hidden border-4",
+                expandedView === 'prompt' ? "border-vibe-purple" : "border-green-500"
+              )}>
+                <div className={cn(
+                  "relative bg-black",
+                  expandedView === 'prompt' ? "w-full aspect-square" : ""
+                )}>
+                  <img
+                    src={vibe.imageUrl}
+                    alt={vibe.caption || `Vibe by ${vibe.user.displayName}`}
+                    className={cn(
+                      "bg-black",
+                      expandedView === 'prompt'
+                        // Zoom into top-left corner where prompt overlay lives (35% of image, with 24px margin)
+                        ? "w-[300%] h-auto object-cover object-left-top"
+                        : "w-full h-auto max-h-[80vh] object-contain"
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* View label */}
+              <div className="absolute bottom-4 left-4">
+                <span className={cn(
+                  "px-3 py-1.5 rounded-full text-sm font-medium",
+                  expandedView === 'prompt'
+                    ? "bg-vibe-purple text-white"
+                    : "bg-green-500 text-white"
+                )}>
+                  {expandedView === 'prompt' ? '💬 PROMPT' : '✨ RESULT'}
+                </span>
+              </div>
+
+              {/* Toggle between views */}
+              <div className="flex justify-center gap-3 mt-4">
+                <button
+                  onClick={() => setExpandedView('prompt')}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-medium transition-all",
+                    expandedView === 'prompt'
+                      ? "bg-vibe-purple text-white"
+                      : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                  )}
+                >
+                  💬 Prompt
+                </button>
+                <button
+                  onClick={() => setExpandedView('result')}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-medium transition-all",
+                    expandedView === 'result'
+                      ? "bg-green-500 text-white"
+                      : "bg-white/10 text-white/70 hover:bg-white/20 hover:text-white"
+                  )}
+                >
+                  ✨ Result
+                </button>
               </div>
 
               {/* User info in modal */}
-              <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-2 rounded-full">
+              <div className="absolute bottom-4 right-4 flex items-center gap-2 bg-black/50 backdrop-blur-sm px-3 py-2 rounded-full">
                 <Avatar
                   src={vibe.user.avatarUrl}
                   alt={vibe.user.displayName}

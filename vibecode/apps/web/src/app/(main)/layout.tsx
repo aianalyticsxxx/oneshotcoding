@@ -23,8 +23,8 @@ export default function MainLayout({
   // Show loading while checking auth
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-terminal-accent border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-terminal-bg flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-terminal-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }

@@ -4,8 +4,6 @@ import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { GlassPanel } from '@/components/ui/GlassPanel';
-import { Button } from '@/components/ui/Button';
 
 function CallbackContent() {
   const router = useRouter();
@@ -56,52 +54,39 @@ function CallbackContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <GlassPanel className="max-w-sm w-full text-center" padding="lg">
-          <div className="text-5xl mb-4">😔</div>
-          <h1 className="text-xl font-semibold text-white mb-2">
+      <div className="min-h-screen bg-terminal-bg flex items-center justify-center p-4">
+        <div className="max-w-sm w-full text-center bg-terminal-bg-elevated border border-terminal-border rounded-lg p-6">
+          <div className="font-mono text-terminal-error text-sm mb-4">ERROR</div>
+          <h1 className="font-mono text-lg text-terminal-text mb-2">
             Authentication Failed
           </h1>
-          <p className="text-white/60 mb-6">{error}</p>
-          <Button variant="gradient" onClick={() => router.push('/login')}>
-            Try Again
-          </Button>
-        </GlassPanel>
+          <p className="text-terminal-text-secondary text-sm mb-6">{error}</p>
+          <button
+            onClick={() => router.push('/login')}
+            className="font-mono text-sm py-2 px-4 rounded border border-terminal-accent text-terminal-accent hover:bg-terminal-accent/10 transition-colors"
+          >
+            ./retry
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-terminal-bg flex flex-col items-center justify-center p-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         className="text-center"
       >
-        {/* Animated sparkle */}
-        <motion.div
-          className="text-6xl mb-6"
-          animate={{
-            rotate: [0, 360],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        >
-          ✨
-        </motion.div>
-
-        {/* Loading text */}
-        <h1 className="text-2xl font-bold gradient-text mb-4">
-          {isProcessing ? 'Logging you in...' : 'Almost there...'}
-        </h1>
+        {/* Terminal-style loading */}
+        <div className="font-mono text-terminal-text-secondary text-sm mb-4">
+          <span className="text-terminal-accent">$</span> auth --login
+        </div>
 
         {/* Loading spinner */}
         <motion.div
-          className="w-8 h-8 border-2 border-vibe-purple border-t-transparent rounded-full mx-auto"
+          className="w-6 h-6 border-2 border-terminal-accent border-t-transparent rounded-full mx-auto mb-4"
           animate={{ rotate: 360 }}
           transition={{
             duration: 1,
@@ -111,12 +96,12 @@ function CallbackContent() {
         />
 
         <motion.p
-          className="mt-4 text-white/50 text-sm"
+          className="font-mono text-terminal-text text-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.3 }}
         >
-          Setting up your vibes...
+          {isProcessing ? 'Authenticating...' : 'Redirecting...'}
         </motion.p>
       </motion.div>
     </div>
@@ -127,8 +112,8 @@ export default function CallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-vibe-purple border-t-transparent rounded-full animate-spin" />
+        <div className="min-h-screen bg-terminal-bg flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-terminal-accent border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

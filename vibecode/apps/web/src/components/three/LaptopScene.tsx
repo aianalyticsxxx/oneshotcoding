@@ -78,7 +78,7 @@ export function LaptopScene({ children }: LaptopSceneProps) {
   return (
     <div className="absolute inset-0 w-full h-full">
       <Canvas
-        camera={{ position: [0, 3, 6], fov: 45 }}
+        camera={{ position: [0, 3.5, 6], fov: 45 }}
         shadows
         gl={{
           antialias: true,

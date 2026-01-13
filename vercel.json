@@ -1,7 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "installCommand": "cd vibecode && npm install --legacy-peer-deps",
-  "buildCommand": "cd vibecode && npm run build -w @vibecode/web",
-  "outputDirectory": "vibecode/apps/web/.next"
-}

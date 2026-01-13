@@ -37,25 +37,13 @@ export default function FeedPage() {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between"
           >
-            <div>
-              <h1 className="text-xl font-semibold text-terminal-text">
-                Feed
-              </h1>
-              <p className="text-sm text-terminal-text-secondary">
-                See what everyone&apos;s building
-              </p>
-            </div>
-
-            {/* Concentric circles logo */}
-            <div className="hidden sm:flex items-center gap-2">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-terminal-accent">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-                <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" />
-              </svg>
-              <span className="font-semibold text-terminal-text">OneShotCoding</span>
-            </div>
+            <h1 className="text-xl font-semibold text-terminal-text">
+              Feed
+            </h1>
+            <p className="text-sm text-terminal-text-secondary">
+              See what everyone&apos;s building
+            </p>
           </motion.div>
 
           {/* Terminal-style Tab Navigation */}

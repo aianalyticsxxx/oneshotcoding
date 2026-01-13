@@ -52,10 +52,10 @@ export function ScreenContent() {
         style={{
           fontSize: '36px',
           marginBottom: '8px',
-          filter: 'drop-shadow(0 0 10px rgba(255,255,0,0.5))',
+          filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.5))',
         }}
       >
-        ⚡
+        ◎
       </div>
 
       {/* Title */}
@@ -68,7 +68,7 @@ export function ScreenContent() {
           textShadow: '0 0 20px rgba(255,255,0,0.3)',
         }}
       >
-        VibeCode
+        OneShotCoding
       </h1>
 
       {/* Tagline */}
@@ -125,19 +125,17 @@ export function ScreenContent() {
         Continue with GitHub
       </button>
 
-      {/* Features - mini version */}
+      {/* Tagline */}
       <div
         style={{
-          display: 'flex',
-          gap: '16px',
           marginTop: '20px',
           fontSize: '9px',
           color: 'rgba(255,255,255,0.4)',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
         }}
       >
-        <span>📸 Daily VibeCheck</span>
-        <span>🔥 Streaks</span>
-        <span>👀 Real Vibes</span>
+        Largest vibecoding community
       </div>
 
       {/* Footer */}

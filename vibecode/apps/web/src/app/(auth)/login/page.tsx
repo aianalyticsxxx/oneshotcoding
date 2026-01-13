@@ -119,7 +119,7 @@ export default function LoginPage() {
         className="absolute top-6 left-6 pointer-events-none"
       >
         <span className="text-white/10 text-xs font-mono tracking-widest uppercase">
-          VibeCode v1.0
+          OneShotCoding v1.0
         </span>
       </motion.div>
     </div>

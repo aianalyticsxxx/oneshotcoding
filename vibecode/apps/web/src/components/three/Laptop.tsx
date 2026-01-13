@@ -181,7 +181,7 @@ export function Laptop({ children }: LaptopProps) {
               transform
               occlude
               position={[0, -0.02, SCREEN_DEPTH / 2 + 0.015]}
-              scale={0.13}
+              scale={0.165}
               style={{
                 width: '420px',
                 height: '280px',
@@ -204,11 +204,6 @@ export function Laptop({ children }: LaptopProps) {
           )}
         </group>
 
-        {/* Hinge */}
-        <mesh position={[0, 0, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, BASE_WIDTH - 0.3, 16]} />
-          <primitive object={aluminumMaterial} attach="material" />
-        </mesh>
       </group>
 
       {/* Logo on back of screen */}

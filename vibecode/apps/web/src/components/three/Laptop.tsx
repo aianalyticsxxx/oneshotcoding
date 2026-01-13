@@ -55,13 +55,13 @@ export function Laptop({ children }: LaptopProps) {
 
   // Materials
   const aluminumMaterial = new THREE.MeshStandardMaterial({
-    color: '#2d2d30',
+    color: '#e8e8e8',
     metalness: 0.9,
     roughness: 0.3,
   });
 
   const blackMaterial = new THREE.MeshStandardMaterial({
-    color: '#0a0a0a',
+    color: '#1a1a1a',
     metalness: 0.5,
     roughness: 0.8,
   });
@@ -75,7 +75,7 @@ export function Laptop({ children }: LaptopProps) {
   });
 
   const keyboardMaterial = new THREE.MeshStandardMaterial({
-    color: '#1a1a1a',
+    color: '#d0d0d0',
     metalness: 0.3,
     roughness: 0.9,
   });
@@ -104,7 +104,7 @@ export function Laptop({ children }: LaptopProps) {
         {/* Trackpad */}
         <mesh position={[0, BASE_HEIGHT / 2 + 0.001, 0.55]}>
           <boxGeometry args={[1.2, 0.01, 0.7]} />
-          <meshStandardMaterial color="#222222" metalness={0.4} roughness={0.7} />
+          <meshStandardMaterial color="#c8c8c8" metalness={0.4} roughness={0.7} />
         </mesh>
 
         {/* Keyboard keys - simplified grid */}
@@ -119,7 +119,7 @@ export function Laptop({ children }: LaptopProps) {
               ]}
             >
               <boxGeometry args={[0.15, 0.02, 0.15]} />
-              <meshStandardMaterial color="#111111" roughness={0.95} />
+              <meshStandardMaterial color="#b8b8b8" roughness={0.95} />
             </mesh>
           ))
         )}

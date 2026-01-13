@@ -69,16 +69,21 @@ export function VideoPreview({
 
       {/* Caption input (optional) */}
       <GlassPanel padding="none">
-        <textarea
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
-          placeholder="Add a caption (optional)"
-          maxLength={280}
-          rows={2}
-          className="w-full bg-transparent border-none resize-none p-4 text-white placeholder-white/40 focus:outline-none focus:ring-0"
-        />
-        <div className="px-4 pb-3 flex justify-between items-center border-t border-glass-border pt-2">
-          <span className="text-white/40 text-sm">{caption.length}/280</span>
+        <div className="p-4">
+          <label className="block text-sm font-mono text-terminal-text-secondary mb-2">
+            $ caption <span className="text-terminal-text-dim">(optional)</span>
+          </label>
+          <textarea
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder="Add a caption..."
+            maxLength={280}
+            rows={2}
+            className="w-full bg-terminal-bg-elevated border border-terminal-border rounded-lg resize-none p-3 text-terminal-text placeholder-terminal-text-dim font-mono text-sm focus:outline-none focus:border-terminal-accent"
+          />
+          <div className="text-right mt-1">
+            <span className="text-terminal-text-dim text-xs font-mono">{caption.length}/280</span>
+          </div>
         </div>
       </GlassPanel>
 
@@ -88,12 +93,12 @@ export function VideoPreview({
           variant="glass"
           onClick={onRetake}
           disabled={isPosting}
-          className="flex-1"
+          className="flex-1 font-mono"
         >
-          Choose Different
+          ./choose-different
         </Button>
         <Button
-          variant="gradient"
+          variant="terminal"
           onClick={handlePost}
           disabled={isPosting || !prompt.trim()}
           className="flex-1"
@@ -101,10 +106,10 @@ export function VideoPreview({
           {isPosting ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Uploading...
+              uploading...
             </span>
           ) : (
-            'Share Video'
+            './share-video'
           )}
         </Button>
       </div>

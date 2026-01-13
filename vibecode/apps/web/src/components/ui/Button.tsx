@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { useTheme, type Theme } from '@/hooks/useTheme';
 
 export interface ButtonProps {
-  variant?: 'gradient' | 'glass' | 'ghost';
+  variant?: 'gradient' | 'glass' | 'ghost' | 'terminal';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: ReactNode;
@@ -48,6 +48,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         'bg-terminal-bg-elevated text-terminal-text border border-terminal-border shadow-terminal-sm hover:border-terminal-border-bright',
       ghost:
         'bg-transparent text-terminal-text-secondary hover:text-terminal-text hover:bg-terminal-bg-elevated',
+      terminal:
+        'bg-terminal-accent text-white font-mono shadow-terminal hover:brightness-110',
     };
 
     const neuVariants = {
@@ -57,6 +59,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         'bg-terminal-bg-elevated text-terminal-text border border-terminal-border shadow-terminal-sm hover:border-terminal-border-bright',
       ghost:
         'bg-transparent text-terminal-text-secondary hover:text-terminal-text hover:bg-terminal-bg-elevated',
+      terminal:
+        'bg-terminal-accent text-white font-mono shadow-terminal hover:brightness-110',
     };
 
     const sizes = {

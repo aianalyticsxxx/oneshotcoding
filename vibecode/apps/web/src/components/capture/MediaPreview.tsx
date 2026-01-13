@@ -88,12 +88,12 @@ export function MediaPreview({
           variant="glass"
           onClick={onRetake}
           disabled={isPosting}
-          className="flex-1"
+          className="flex-1 font-mono"
         >
-          Choose Different
+          ./choose-different
         </Button>
         <Button
-          variant="gradient"
+          variant="terminal"
           onClick={handlePost}
           disabled={isPosting || !prompt.trim()}
           className="flex-1"
@@ -101,10 +101,10 @@ export function MediaPreview({
           {isPosting ? (
             <span className="flex items-center gap-2">
               <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-              Uploading...
+              uploading...
             </span>
           ) : (
-            'Share'
+            './share'
           )}
         </Button>
       </div>

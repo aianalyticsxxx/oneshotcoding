@@ -99,18 +99,6 @@ export default function LoginPage() {
         )}
       </AnimatePresence>
 
-      {/* Instructions overlay */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 2, duration: 0.8 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center pointer-events-none"
-      >
-        <p className="text-white/30 text-sm font-light tracking-wider">
-          Drag to orbit • Scroll to zoom
-        </p>
-      </motion.div>
-
       {/* Brand watermark */}
       <motion.div
         initial={{ opacity: 0 }}

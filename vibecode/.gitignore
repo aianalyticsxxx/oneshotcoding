@@ -40,3 +40,5 @@ coverage/
 # Misc
 *.tsbuildinfo
 .eslintcache
+.vercel
+.env*.local

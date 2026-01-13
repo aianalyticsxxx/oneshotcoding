@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Use Railway API URL in production
 const API_URL = process.env.API_URL ||
   (process.env.NODE_ENV === 'production'
-    ? 'https://vibecodeenergy-production.up.railway.app'
+    ? 'https://oneshotcoding-production.up.railway.app'
     : 'http://localhost:4000');
 
 export async function GET(request: NextRequest) {

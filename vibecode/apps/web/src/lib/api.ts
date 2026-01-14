@@ -207,6 +207,23 @@ export interface ChallengesResponse {
   hasMore?: boolean;
 }
 
+// Tag types
+export interface TrendingTag {
+  name: string;
+  count: number;
+}
+
+export interface TrendingTagsResponse {
+  tags: TrendingTag[];
+}
+
+export interface TagShotsResponse {
+  tag: string;
+  shots: Shot[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
 /**
  * Base fetch wrapper with auth and automatic token refresh
  */
@@ -517,4 +534,11 @@ export const api = {
     get<ShotsFeedResponse>(`/shots?sort=${sort}${cursor ? `&cursor=${cursor}` : ''}`),
   getUserVibes: (username: string, cursor?: string) =>
     get<PaginatedResponse<Shot>>(`/users/${username}/shots${cursor ? `?cursor=${cursor}` : ''}`),
+
+  // Tags / Hashtags
+  getTrendingTags: (days: number = 7, limit: number = 10) =>
+    get<TrendingTagsResponse>(`/tags/trending?days=${days}&limit=${limit}`),
+
+  getShotsByTag: (tagName: string, cursor?: string) =>
+    get<TagShotsResponse>(`/tags/${encodeURIComponent(tagName)}/shots${cursor ? `?cursor=${cursor}` : ''}`),
 };

@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { ShotService } from '../../services/shot.service.js';
 import { UploadService } from '../../services/upload.service.js';
+import { TagService } from '../../services/tag.service.js';
 
 interface CreateShotBody {
   prompt: string;
@@ -36,6 +37,7 @@ interface SubmitToChallengeBody {
 export const shotRoutes: FastifyPluginAsync = async (fastify) => {
   const shotService = new ShotService(fastify);
   const uploadService = new UploadService(fastify);
+  const tagService = new TagService(fastify);
 
   // GET /shots - Chronological feed with cursor pagination (Explore tab)
   fastify.get<{ Querystring: DiscoveryQuery }>('/', {
@@ -218,6 +220,16 @@ export const shotRoutes: FastifyPluginAsync = async (fastify) => {
         externalUrl,
         challengeId,
       });
+
+      // Extract and attach hashtags from both prompt and caption
+      const hashtags = [
+        ...tagService.extractHashtags(prompt),
+        ...tagService.extractHashtags(caption || ''),
+      ];
+      const uniqueHashtags = [...new Set(hashtags)];
+      if (uniqueHashtags.length > 0) {
+        await tagService.attachTagsToShot(shot.id, uniqueHashtags);
+      }
 
       return reply.status(201).send(shot);
     } catch (err) {

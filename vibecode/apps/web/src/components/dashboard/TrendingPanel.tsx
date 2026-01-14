@@ -2,25 +2,11 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useTrendingTags } from '@/hooks/useTags';
 
-interface TrendingItem {
-  tag: string;
-  count: number;
-}
+export function TrendingPanel() {
+  const { tags, isLoading } = useTrendingTags(7, 5);
 
-interface TrendingPanelProps {
-  items?: TrendingItem[];
-}
-
-const defaultItems: TrendingItem[] = [
-  { tag: 'buildinpublic', count: 142 },
-  { tag: 'frontend', count: 98 },
-  { tag: 'typescript', count: 76 },
-  { tag: 'react', count: 64 },
-  { tag: 'ai', count: 52 },
-];
-
-export function TrendingPanel({ items = defaultItems }: TrendingPanelProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -44,24 +30,38 @@ export function TrendingPanel({ items = defaultItems }: TrendingPanelProps) {
 
       {/* Trending Items */}
       <div className="p-3 space-y-1">
-        {items.map((item, index) => (
-          <Link
-            key={item.tag}
-            href={`/discover?tag=${item.tag}`}
-            className="flex items-center justify-between py-1.5 px-2 rounded-md
-                       hover:bg-terminal-bg-hover transition-colors group"
-          >
-            <span className="font-mono text-sm">
-              <span className="text-terminal-accent">#</span>
-              <span className="text-terminal-text group-hover:text-terminal-accent transition-colors">
-                {item.tag}
+        {isLoading ? (
+          // Loading skeleton
+          [...Array(5)].map((_, i) => (
+            <div key={i} className="flex items-center justify-between py-1.5 px-2">
+              <div className="h-4 w-20 bg-terminal-bg-elevated rounded animate-pulse" />
+              <div className="h-4 w-8 bg-terminal-bg-elevated rounded animate-pulse" />
+            </div>
+          ))
+        ) : tags.length === 0 ? (
+          <p className="text-terminal-text-dim text-xs font-mono py-2 px-2">
+            No trending tags yet
+          </p>
+        ) : (
+          tags.map((item) => (
+            <Link
+              key={item.name}
+              href={`/tags/${item.name}`}
+              className="flex items-center justify-between py-1.5 px-2 rounded-md
+                         hover:bg-terminal-bg-hover transition-colors group"
+            >
+              <span className="font-mono text-sm">
+                <span className="text-terminal-accent">#</span>
+                <span className="text-terminal-text group-hover:text-terminal-accent transition-colors">
+                  {item.name}
+                </span>
               </span>
-            </span>
-            <span className="font-mono text-xs text-terminal-text-dim">
-              {item.count}
-            </span>
-          </Link>
-        ))}
+              <span className="font-mono text-xs text-terminal-text-dim">
+                {item.count}
+              </span>
+            </Link>
+          ))
+        )}
       </div>
     </motion.div>
   );

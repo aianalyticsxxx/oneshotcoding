@@ -9,6 +9,7 @@ import { cn, formatRelativeTime } from '@/lib/utils';
 import { Avatar } from '@/components/ui/Avatar';
 import { VibeButton } from './VibeButton';
 import { FollowButton } from './FollowButton';
+import { HashtagText } from '@/components/HashtagText';
 import type { Shot } from '@/lib/api';
 
 // Keep Vibe as an alias for backwards compatibility
@@ -191,7 +192,7 @@ export function VibeCard({ vibe, className }: VibeCardProps) {
             <span className="text-terminal-accent flex-shrink-0">&gt;</span>
             <div className="flex-1 min-w-0">
               <p className="text-terminal-text whitespace-pre-wrap break-words">
-                {getDisplayPrompt()}
+                <HashtagText text={getDisplayPrompt()} />
                 {promptNeedsTruncation && !isExpanded && '...'}
               </p>
               {promptNeedsTruncation && (

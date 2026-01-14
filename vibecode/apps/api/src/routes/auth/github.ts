@@ -137,31 +137,14 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
         username: user.username,
       });
 
-      // Set cookies
-      const isProduction = process.env.NODE_ENV === 'production';
-
-      reply.setCookie('access_token', accessToken, {
-        path: '/',
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        maxAge: 15 * 60, // 15 minutes
-      });
-
-      reply.setCookie('refresh_token', refreshToken, {
-        path: '/',
-        httpOnly: true,
-        secure: isProduction,
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60, // 7 days
-      });
-
       // Store refresh token in database
       await authService.storeRefreshToken(user.id, refreshToken);
 
-      // Redirect to frontend - tokens are already in httpOnly cookies
+      // Redirect to frontend with tokens in URL
+      // Tokens are passed via URL because API and frontend are on different domains,
+      // so cookies set here wouldn't be accessible to the frontend
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      return reply.redirect(`${frontendUrl}/auth/callback?success=true`);
+      return reply.redirect(`${frontendUrl}/auth/callback?success=true&accessToken=${accessToken}&refreshToken=${refreshToken}`);
     } catch (err) {
       fastify.log.error({ err }, 'GitHub OAuth error');
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';

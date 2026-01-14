@@ -16,6 +16,8 @@ function CallbackContent() {
     const processCallback = async () => {
       const success = searchParams.get('success');
       const errorParam = searchParams.get('error');
+      const accessToken = searchParams.get('accessToken');
+      const refreshToken = searchParams.get('refreshToken');
 
       if (errorParam) {
         const errorMessages: Record<string, string> = {
@@ -27,9 +29,20 @@ function CallbackContent() {
         return;
       }
 
-      if (success === 'true') {
-        // Token is already in httpOnly cookie, just verify auth
+      if (success === 'true' && accessToken) {
+        // Store tokens received from OAuth callback
         try {
+          // Store tokens in cookies on the frontend domain
+          const isSecure = window.location.protocol === 'https:';
+          document.cookie = `access_token=${accessToken}; path=/; max-age=${15 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
+          if (refreshToken) {
+            document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
+          }
+
+          // Clean up URL (remove tokens from browser history)
+          window.history.replaceState({}, '', '/auth/callback?success=true');
+
+          // Verify auth and redirect
           await refreshAuth();
           router.replace('/');
         } catch (err) {

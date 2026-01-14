@@ -217,6 +217,14 @@ export interface TrendingTagsResponse {
   tags: TrendingTag[];
 }
 
+// OAuth Account types
+export interface OAuthAccount {
+  id: string;
+  provider: string;
+  providerUsername: string | null;
+  createdAt: string;
+}
+
 export interface TagShotsResponse {
   tag: string;
   shots: Shot[];
@@ -590,4 +598,10 @@ export const api = {
     reason: 'spam' | 'harassment' | 'inappropriate' | 'impersonation' | 'other';
     details?: string;
   }) => post<{ report: { id: string } }>('/reports', data),
+
+  // OAuth Accounts
+  getOAuthAccounts: () => get<{ accounts: OAuthAccount[] }>('/auth/accounts'),
+
+  unlinkOAuthAccount: (provider: string) =>
+    del<{ success: boolean }>(`/auth/accounts/${provider}`),
 };

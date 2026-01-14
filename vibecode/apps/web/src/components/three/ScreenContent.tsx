@@ -1,10 +1,14 @@
 'use client';
 
-import { getGitHubOAuthUrl } from '@/lib/auth';
+import { getGitHubOAuthUrl, getTwitterOAuthUrl } from '@/lib/auth';
 
 export function ScreenContent() {
-  const handleLogin = () => {
+  const handleGitHubLogin = () => {
     window.location.href = getGitHubOAuthUrl();
+  };
+
+  const handleXLogin = () => {
+    window.location.href = getTwitterOAuthUrl();
   };
 
   return (
@@ -100,7 +104,7 @@ export function ScreenContent() {
 
       {/* GitHub Login Button */}
       <button
-        onClick={handleLogin}
+        onClick={handleGitHubLogin}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -137,6 +141,53 @@ export function ScreenContent() {
           />
         </svg>
         Continue with GitHub
+      </button>
+
+      {/* Divider */}
+      <div
+        style={{
+          fontSize: '10px',
+          color: '#737373',
+          margin: '12px 0',
+        }}
+      >
+        or
+      </div>
+
+      {/* X Login Button */}
+      <button
+        onClick={handleXLogin}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px',
+          width: '100%',
+          maxWidth: '240px',
+          padding: '12px 20px',
+          background: '#000000',
+          color: '#ffffff',
+          border: '1px solid #404040',
+          borderRadius: '6px',
+          fontSize: '13px',
+          fontWeight: 600,
+          fontFamily: 'inherit',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.transform = 'scale(1.02)';
+          e.currentTarget.style.background = '#1a1a1a';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+          e.currentTarget.style.background = '#000000';
+        }}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+        </svg>
+        Continue with X
       </button>
 
       {/* Community tagline */}

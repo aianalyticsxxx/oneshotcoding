@@ -88,6 +88,17 @@ export function getGitHubOAuthUrl(): string {
 }
 
 /**
+ * Get the Twitter OAuth URL
+ */
+export function getTwitterOAuthUrl(link?: boolean): string {
+  const apiUrl = process.env.NEXT_PUBLIC_AUTH_URL ||
+    (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+      ? 'https://oneshotcoding-production.up.railway.app'
+      : 'http://localhost:4000');
+  return `${apiUrl}/auth/twitter${link ? '?link=true' : ''}`;
+}
+
+/**
  * Parse auth callback params
  */
 export function parseAuthCallback(searchParams: URLSearchParams): {

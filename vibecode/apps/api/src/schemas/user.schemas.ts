@@ -120,4 +120,22 @@ export const userSchemas = {
       },
     },
   },
+
+  deleteUser: {
+    response: {
+      200: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          message: { type: 'string' },
+        },
+      },
+      500: {
+        type: 'object',
+        properties: {
+          error: { type: 'string' },
+        },
+      },
+    },
+  },
 };

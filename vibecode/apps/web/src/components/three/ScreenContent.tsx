@@ -151,7 +151,7 @@ export function ScreenContent() {
       </div>
 
       {/* Footer */}
-      <p
+      <div
         style={{
           position: 'absolute',
           bottom: '10px',
@@ -163,8 +163,23 @@ export function ScreenContent() {
           margin: 0,
         }}
       >
-        By continuing, you agree to our Terms of Service
-      </p>
+        By continuing, you agree to our{' '}
+        <a
+          href="/terms"
+          style={{ color: 'rgba(217,119,6,0.6)', textDecoration: 'underline' }}
+          onClick={(e) => { e.preventDefault(); window.open('/terms', '_blank'); }}
+        >
+          Terms
+        </a>
+        {' & '}
+        <a
+          href="/privacy"
+          style={{ color: 'rgba(217,119,6,0.6)', textDecoration: 'underline' }}
+          onClick={(e) => { e.preventDefault(); window.open('/privacy', '_blank'); }}
+        >
+          Privacy
+        </a>
+      </div>
 
       {/* Accent glow effects - warm orange */}
       <div

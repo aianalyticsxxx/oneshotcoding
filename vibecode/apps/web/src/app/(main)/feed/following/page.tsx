@@ -15,7 +15,7 @@ export default function FollowingFeedPage() {
     <>
       <StatsPanel username={user?.username} />
       <TrendingPanel />
-      <ActivityFeed mode="personal" />
+      <ActivityFeed mode="global" />
     </>
   );
 

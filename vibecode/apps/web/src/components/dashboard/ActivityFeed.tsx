@@ -45,7 +45,7 @@ function getActivityIcon(type: ApiActivityItem['type']): string {
   }
 }
 
-export function ActivityFeed({ mode = 'personal' }: ActivityFeedProps) {
+export function ActivityFeed({ mode = 'following' }: ActivityFeedProps) {
   const { user } = useAuth();
   const { items, isLoading, error } = useActivity(mode);
 

@@ -111,4 +111,25 @@ export const userRoutes: FastifyPluginAsync = async (fastify) => {
 
     return { user: updatedUser };
   });
+
+  // DELETE /users/me - Delete current user's account
+  fastify.delete('/me', {
+    preHandler: [fastify.authenticate],
+    schema: userSchemas.deleteUser,
+  }, async (request, reply) => {
+    const { userId } = request.user;
+
+    try {
+      await userService.deleteAccount(userId);
+
+      // Clear auth cookies
+      reply.clearCookie('access_token', { path: '/' });
+      reply.clearCookie('refresh_token', { path: '/' });
+
+      return { success: true, message: 'Account deleted successfully' };
+    } catch (error) {
+      fastify.log.error({ error, userId }, 'Failed to delete account');
+      return reply.status(500).send({ error: 'Failed to delete account' });
+    }
+  });
 };

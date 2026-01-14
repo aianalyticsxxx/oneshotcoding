@@ -575,6 +575,19 @@ export const api = {
     get<UserStats>(`/users/${username}/stats`),
 
   // Activity Feed
-  getActivity: (mode: 'personal' | 'global' = 'personal', cursor?: string) =>
+  getActivity: (mode: 'personal' | 'global' | 'following' = 'personal', cursor?: string) =>
     get<ActivityFeedResponse>(`/activity?mode=${mode}${cursor ? `&cursor=${cursor}` : ''}`),
+
+  // Account management
+  deleteAccount: () =>
+    del<{ success: boolean; message: string }>('/users/me'),
+
+  // Reports
+  createReport: (data: {
+    reportedUserId?: string;
+    reportedShotId?: string;
+    reportedCommentId?: string;
+    reason: 'spam' | 'harassment' | 'inappropriate' | 'impersonation' | 'other';
+    details?: string;
+  }) => post<{ report: { id: string } }>('/reports', data),
 };

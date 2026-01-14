@@ -4,7 +4,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { api, ActivityItem, ActivityFeedResponse } from '@/lib/api';
 import { useCallback } from 'react';
 
-export type ActivityMode = 'personal' | 'global';
+export type ActivityMode = 'personal' | 'global' | 'following';
 
 export interface UseActivityReturn {
   items: ActivityItem[];

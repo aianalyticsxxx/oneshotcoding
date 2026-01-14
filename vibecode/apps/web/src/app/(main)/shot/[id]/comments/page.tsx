@@ -11,6 +11,7 @@ import { api } from '@/lib/api';
 import { useComments } from '@/hooks/useComments';
 import { useAuth } from '@/hooks/useAuth';
 import { Avatar } from '@/components/ui/Avatar';
+import { ReportButton } from '@/components/moderation/ReportButton';
 
 export default function CommentsPage() {
   const params = useParams();
@@ -207,7 +208,7 @@ export default function CommentsPage() {
                     </div>
 
                     {/* Delete button - only for own comments */}
-                    {user?.id === comment.user.id && (
+                    {user?.id === comment.user.id ? (
                       <button
                         onClick={() => handleDelete(comment.id)}
                         className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded text-terminal-text-dim hover:text-terminal-error"
@@ -216,6 +217,14 @@ export default function CommentsPage() {
                           <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
                       </button>
+                    ) : (
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ReportButton
+                          targetType="comment"
+                          targetId={comment.id}
+                          targetName={`@${comment.user.username}'s comment`}
+                        />
+                      </div>
                     )}
                   </div>
                 </div>

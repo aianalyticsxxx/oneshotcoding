@@ -2,7 +2,7 @@ import type { FastifyPluginAsync } from 'fastify';
 import { ActivityService } from '../../services/activity.service.js';
 
 interface ActivityQuery {
-  mode?: 'personal' | 'global';
+  mode?: 'personal' | 'global' | 'following';
   cursor?: string;
   limit?: number;
 }
@@ -19,10 +19,13 @@ export const activityRoutes: FastifyPluginAsync = async (fastify) => {
     const { mode = 'personal', cursor, limit = 20 } = request.query;
     const userId = request.user?.userId;
 
-    // Personal mode requires authentication
-    if (mode === 'personal') {
+    // Personal and following modes require authentication
+    if (mode === 'personal' || mode === 'following') {
       if (!userId) {
         return reply.status(401).send({ error: 'Authentication required for personal activity' });
+      }
+      if (mode === 'following') {
+        return activityService.getFollowingActivity(userId, cursor, Math.min(limit, 50));
       }
       return activityService.getPersonalActivity(userId, cursor, Math.min(limit, 50));
     }

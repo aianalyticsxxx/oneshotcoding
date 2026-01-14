@@ -58,8 +58,7 @@ function useAuthState(): AuthContextValue {
         setUser(data.user);
         setUserState(data.user);
       }
-    } catch (error) {
-      console.error('Failed to refresh user:', error);
+    } catch {
       clearAuth();
       setUserState(null);
     } finally {
@@ -80,8 +79,7 @@ function useAuthState(): AuthContextValue {
         setUser(data.user);
         setUserState(data.user);
       }
-    } catch (error) {
-      console.error('Failed to refresh auth:', error);
+    } catch {
       clearAuth();
       setUserState(null);
     } finally {
@@ -97,15 +95,13 @@ function useAuthState(): AuthContextValue {
     try {
       const { data, error } = await api.getMe();
       if (error || !data) {
-        console.error('[useAuth] Login failed - getMe error:', error);
         clearAuth();
         setUserState(null);
       } else {
         setUser(data.user);
         setUserState(data.user);
       }
-    } catch (error) {
-      console.error('[useAuth] Login failed - exception:', error);
+    } catch {
       clearAuth();
       setUserState(null);
     } finally {

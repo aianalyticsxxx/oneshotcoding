@@ -10,6 +10,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { VibeButton } from './VibeButton';
 import { FollowButton } from './FollowButton';
 import { HashtagText } from '@/components/HashtagText';
+import { ReportButton } from '@/components/moderation/ReportButton';
 import type { Shot } from '@/lib/api';
 
 // Keep Vibe as an alias for backwards compatibility
@@ -339,6 +340,13 @@ export function VibeCard({ vibe, className }: VibeCardProps) {
               />
             </svg>
           </motion.button>
+
+          {/* Report button */}
+          <ReportButton
+            targetType="shot"
+            targetId={vibe.id}
+            targetName={`@${vibe.user.username}'s shot`}
+          />
         </div>
 
       </div>

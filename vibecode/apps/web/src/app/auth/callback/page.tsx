@@ -8,35 +8,32 @@ import { useAuth } from '@/hooks/useAuth';
 function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { refreshAuth } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
     const processCallback = async () => {
       const success = searchParams.get('success');
-      const token = searchParams.get('token');
       const errorParam = searchParams.get('error');
 
-      console.log('[Auth Callback] Params:', { success, hasToken: !!token, errorParam, url: window.location.href });
-
       if (errorParam) {
-        setError(errorParam === 'oauth_failed'
-          ? 'GitHub authentication failed. Please try again.'
-          : decodeURIComponent(errorParam));
+        const errorMessages: Record<string, string> = {
+          oauth_failed: 'GitHub authentication failed. Please try again.',
+          csrf_validation_failed: 'Security validation failed. Please try again.',
+        };
+        setError(errorMessages[errorParam] || decodeURIComponent(errorParam));
         setIsProcessing(false);
         return;
       }
 
-      if (success === 'true' && token) {
-        // Store the token and fetch user data
+      if (success === 'true') {
+        // Token is already in httpOnly cookie, just verify auth
         try {
-          console.log('[Auth Callback] Calling login with token...');
-          await login(token);
-          console.log('[Auth Callback] Login successful, redirecting to /');
+          await refreshAuth();
           router.replace('/');
         } catch (err) {
-          console.error('[Auth Callback] Login error:', err);
+          console.error('Auth callback error:', err);
           setError('Failed to complete login. Please try again.');
           setIsProcessing(false);
         }
@@ -44,13 +41,12 @@ function CallbackContent() {
       }
 
       // No success or error - unexpected state
-      console.log('[Auth Callback] Missing success/token, showing error');
       setError('Authentication incomplete. Please try again.');
       setIsProcessing(false);
     };
 
     processCallback();
-  }, [searchParams, login, router]);
+  }, [searchParams, refreshAuth, router]);
 
   if (error) {
     return (

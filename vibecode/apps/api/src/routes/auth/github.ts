@@ -14,7 +14,9 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
   const authService = new AuthService(fastify);
 
   // GET /auth/github - Redirect to GitHub OAuth
-  fastify.get('/github', async (_request, reply) => {
+  fastify.get('/github', {
+    config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
+  }, async (_request, reply) => {
     const clientId = process.env.GITHUB_CLIENT_ID;
     const callbackUrl = process.env.GITHUB_CALLBACK_URL;
 
@@ -61,20 +63,16 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
     // Clear the state cookie
     reply.clearCookie('oauth_state', { path: '/' });
 
-    // Verify state for CSRF protection (log for debugging)
-    if (!state || state !== storedState) {
+    // Verify state for CSRF protection - strict mode
+    if (!state || !storedState || state !== storedState) {
       fastify.log.warn({
-        state,
-        storedState,
-        cookies: Object.keys(request.cookies),
-        hasOauthState: !!storedState
-      }, 'OAuth state mismatch - cookies may not be persisting');
+        hasState: !!state,
+        hasStoredState: !!storedState,
+        match: state === storedState,
+      }, 'OAuth state validation failed');
 
-      // In production, if state doesn't match but we have a valid code,
-      // proceed cautiously (GitHub's own CSRF protection via code is still active)
-      if (!code) {
-        return reply.status(400).send({ error: 'Invalid OAuth state' });
-      }
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return reply.redirect(`${frontendUrl}/auth/callback?error=csrf_validation_failed`);
     }
 
     try {
@@ -161,9 +159,9 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
       // Store refresh token in database
       await authService.storeRefreshToken(user.id, refreshToken);
 
-      // Redirect to frontend with tokens in URL (they'll be set as cookies by the frontend)
+      // Redirect to frontend - tokens are already in httpOnly cookies
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
-      return reply.redirect(`${frontendUrl}/auth/callback?success=true&token=${encodeURIComponent(accessToken)}`);
+      return reply.redirect(`${frontendUrl}/auth/callback?success=true`);
     } catch (err) {
       fastify.log.error({ err }, 'GitHub OAuth error');
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -172,7 +170,9 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // POST /auth/refresh - Refresh access token
-  fastify.post<{ Body: RefreshBody }>('/refresh', async (request, reply) => {
+  fastify.post<{ Body: RefreshBody }>('/refresh', {
+    config: { rateLimit: { max: 20, timeWindow: '1 minute' } },
+  }, async (request, reply) => {
     // Get refresh token from cookie or body
     const refreshToken = request.cookies.refresh_token || request.body?.refreshToken;
 

@@ -4,6 +4,7 @@ import fastifyCookie from '@fastify/cookie';
 import fastifyCors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
 import fastifyMultipart from '@fastify/multipart';
+import fastifyRateLimit from '@fastify/rate-limit';
 
 import { dbPlugin } from './plugins/db.js';
 import { authPlugin } from './plugins/auth.js';
@@ -20,8 +21,16 @@ import { uploadRoutes } from './routes/upload/index.js';
 import { challengeRoutes } from './routes/challenges/index.js';
 import { tagRoutes } from './routes/tags/index.js';
 import { activityRoutes } from './routes/activity/index.js';
+import { reportRoutes } from './routes/reports/index.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
+  // Validate required environment variables
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required');
+  }
+  if (!process.env.COOKIE_SECRET) {
+    throw new Error('COOKIE_SECRET environment variable is required');
+  }
   const app = Fastify({
     logger: {
       level: process.env.LOG_LEVEL || 'info',
@@ -61,12 +70,12 @@ export async function buildApp(): Promise<FastifyInstance> {
 
   // Register cookie support
   await app.register(fastifyCookie, {
-    secret: process.env.COOKIE_SECRET || process.env.JWT_SECRET || 'cookie-secret',
+    secret: process.env.COOKIE_SECRET,
   });
 
   // Register JWT
   await app.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET || 'your-super-secret-jwt-key',
+    secret: process.env.JWT_SECRET,
     cookie: {
       cookieName: 'access_token',
       signed: false,
@@ -79,6 +88,16 @@ export async function buildApp(): Promise<FastifyInstance> {
       fileSize: 50 * 1024 * 1024, // 50MB max (increased for video uploads)
       files: 1,
     },
+  });
+
+  // Register rate limiting
+  await app.register(fastifyRateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+    keyGenerator: (request) => request.ip,
+    errorResponseBuilder: () => ({
+      error: 'Too many requests. Please try again later.',
+    }),
   });
 
   // Register custom plugins
@@ -98,6 +117,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(challengeRoutes, { prefix: '/challenges' });
   await app.register(tagRoutes, { prefix: '/tags' });
   await app.register(activityRoutes, { prefix: '/activity' });
+  await app.register(reportRoutes, { prefix: '/reports' });
 
   // Health check endpoint
   app.get('/health', async () => {

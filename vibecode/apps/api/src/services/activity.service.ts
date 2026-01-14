@@ -100,6 +100,82 @@ export class ActivityService {
   }
 
   /**
+   * Get activity from users the current user follows:
+   * - New posts from followed users
+   * - Sparkles by followed users
+   */
+  async getFollowingActivity(
+    userId: string,
+    cursor?: string,
+    limit: number = 20
+  ): Promise<ActivityFeedResult> {
+    const actualLimit = Math.min(limit, 50) + 1;
+    const params: (string | number)[] = [userId, actualLimit];
+
+    let cursorCondition = '';
+    if (cursor) {
+      cursorCondition = `AND timestamp < $3`;
+      params.push(cursor);
+    }
+
+    const result = await this.fastify.db.query(
+      `WITH activity AS (
+        -- New shots from followed users
+        SELECT
+          s.id::text as id,
+          'shot' as type,
+          u.id as actor_id,
+          u.username as actor_username,
+          u.display_name as actor_display_name,
+          u.avatar_url as actor_avatar_url,
+          NULL as target_user_id,
+          NULL as target_username,
+          s.id::text as shot_id,
+          s.created_at as timestamp
+        FROM shots s
+        JOIN users u ON s.user_id = u.id
+        JOIN follows f ON f.following_id = s.user_id AND f.follower_id = $1
+
+        UNION ALL
+
+        -- Sparkles by followed users
+        SELECT
+          r.id::text as id,
+          'sparkle' as type,
+          u.id as actor_id,
+          u.username as actor_username,
+          u.display_name as actor_display_name,
+          u.avatar_url as actor_avatar_url,
+          s.user_id as target_user_id,
+          target_u.username as target_username,
+          r.shot_id::text as shot_id,
+          r.created_at as timestamp
+        FROM reactions r
+        JOIN users u ON r.user_id = u.id
+        JOIN shots s ON r.shot_id = s.id
+        JOIN users target_u ON s.user_id = target_u.id
+        JOIN follows f ON f.following_id = r.user_id AND f.follower_id = $1
+        WHERE r.reaction_type = 'sparkle'
+          AND r.user_id != s.user_id  -- Exclude self-sparkles
+      )
+      SELECT * FROM activity
+      WHERE 1=1 ${cursorCondition}
+      ORDER BY timestamp DESC
+      LIMIT $2`,
+      params
+    );
+
+    const items = result.rows.slice(0, limit).map(row => this.mapActivityRow(row));
+    const hasMore = result.rows.length > limit;
+    const lastItem = items[items.length - 1];
+    const nextCursor = hasMore && lastItem
+      ? lastItem.timestamp.toISOString()
+      : null;
+
+    return { items, nextCursor, hasMore };
+  }
+
+  /**
    * Get global activity feed (all recent activity)
    * Shows: new posts, sparkles, follows
    */

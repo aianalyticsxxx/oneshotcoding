@@ -121,4 +121,54 @@ export class UserService {
       shotCount: 0,
     };
   }
+
+  /**
+   * Soft delete user account
+   * - Sets deleted_at timestamp
+   * - Anonymizes PII (username, display_name, avatar_url, bio)
+   * - Schedules permanent deletion for 30 days later
+   * - Revokes all refresh tokens
+   */
+  async deleteAccount(userId: string): Promise<boolean> {
+    const client = await this.fastify.db.connect();
+
+    try {
+      await client.query('BEGIN');
+
+      // Generate anonymous identifier
+      const anonId = userId.slice(0, 8);
+      const deletedAt = new Date();
+      const deletionScheduledAt = new Date(deletedAt.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+      // Anonymize user data
+      await client.query(
+        `UPDATE users SET
+          username = $1,
+          display_name = $2,
+          avatar_url = NULL,
+          bio = NULL,
+          github_id = -ABS(github_id), -- Negate to mark as deleted but keep unique
+          deleted_at = $3,
+          deletion_scheduled_at = $4,
+          updated_at = NOW()
+        WHERE id = $5 AND deleted_at IS NULL`,
+        [`deleted_${anonId}`, 'Deleted User', deletedAt, deletionScheduledAt, userId]
+      );
+
+      // Revoke all refresh tokens/sessions
+      await client.query(
+        'DELETE FROM sessions WHERE user_id = $1',
+        [userId]
+      );
+
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      this.fastify.log.error({ error, userId }, 'Failed to delete account');
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
 }

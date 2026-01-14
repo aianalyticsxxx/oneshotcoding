@@ -77,11 +77,9 @@ export default function HomePage() {
                 animate={{ opacity: [1, 0.4, 1] }}
                 transition={{ duration: 1, repeat: Infinity }}
               >
-                <svg width="50" height="32" viewBox="0 0 38 24" fill="none" className="text-terminal-accent">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" className="text-terminal-accent">
                   <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
                   <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="2" />
-                  <line x1="30" y1="6" x2="30" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  <circle cx="30" cy="4" r="2.5" fill="currentColor" />
                 </svg>
               </motion.div>
               <span className="text-xl font-semibold text-terminal-text">

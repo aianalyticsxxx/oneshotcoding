@@ -14,9 +14,9 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
   const authService = new AuthService(fastify);
 
   // GET /auth/github - Redirect to GitHub OAuth
-  fastify.get('/github', {
+  fastify.get<{ Querystring: { link?: string } }>('/github', {
     config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
-  }, async (_request, reply) => {
+  }, async (request, reply) => {
     const clientId = process.env.GITHUB_CLIENT_ID;
     const callbackUrl = process.env.GITHUB_CALLBACK_URL;
 
@@ -26,8 +26,28 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
 
     const state = crypto.randomUUID();
 
-    // Store state in cookie for CSRF protection
-    reply.setCookie('oauth_state', state, {
+    // Check if this is a link request (user wants to add GitHub to existing account)
+    const isLinkRequest = request.query.link === 'true';
+    let userId: string | undefined;
+
+    if (isLinkRequest) {
+      // Verify user is authenticated
+      try {
+        await fastify.authenticate(request, reply);
+        userId = request.user?.userId;
+      } catch {
+        return reply.status(401).send({ error: 'Authentication required to link accounts' });
+      }
+    }
+
+    // Store state and link info in cookie
+    const oauthData = JSON.stringify({
+      state,
+      isLink: isLinkRequest,
+      userId,
+    });
+
+    reply.setCookie('oauth_state', oauthData, {
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -63,12 +83,21 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
     // Clear the state cookie
     reply.clearCookie('oauth_state', { path: '/' });
 
+    // Parse oauth data (new JSON format, with legacy string fallback)
+    let oauthData: { state: string; isLink: boolean; userId?: string };
+    try {
+      oauthData = JSON.parse(storedState || '');
+    } catch {
+      // Legacy format - just the state string
+      oauthData = { state: storedState || '', isLink: false };
+    }
+
     // Verify state for CSRF protection - strict mode
-    if (!state || !storedState || state !== storedState) {
+    if (!state || !oauthData.state || state !== oauthData.state) {
       fastify.log.warn({
         hasState: !!state,
-        hasStoredState: !!storedState,
-        match: state === storedState,
+        hasStoredState: !!oauthData.state,
+        match: state === oauthData.state,
       }, 'OAuth state validation failed');
 
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
@@ -122,7 +151,28 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
         email?: string;
       };
 
-      // Upsert user in database
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+
+      // Handle link flow - user is adding GitHub to existing account
+      if (oauthData.isLink && oauthData.userId) {
+        // Check if this GitHub account is already linked to another user
+        const existingUser = await authService.findUserByOAuthProvider('github', githubUser.id.toString());
+        if (existingUser && existingUser.id !== oauthData.userId) {
+          return reply.redirect(`${frontendUrl}/settings?error=account_already_linked`);
+        }
+
+        // Link the GitHub account to the current user
+        await authService.upsertOAuthAccount(
+          oauthData.userId,
+          'github',
+          githubUser.id.toString(),
+          githubUser.login
+        );
+
+        return reply.redirect(`${frontendUrl}/settings?linked=github`);
+      }
+
+      // Normal login flow - upsert user in database
       const user = await authService.upsertGitHubUser({
         githubId: githubUser.id.toString(),
         username: githubUser.login,
@@ -143,7 +193,6 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
       // Redirect to frontend with tokens in URL
       // Tokens are passed via URL because API and frontend are on different domains,
       // so cookies set here wouldn't be accessible to the frontend
-      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
       return reply.redirect(`${frontendUrl}/auth/callback?success=true&accessToken=${accessToken}&refreshToken=${refreshToken}`);
     } catch (err) {
       fastify.log.error({ err }, 'GitHub OAuth error');

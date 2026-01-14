@@ -6,8 +6,6 @@ import { cn } from '@/lib/utils';
 import { useVibes } from '@/hooks/useVibes';
 import { useFollowingFeed } from '@/hooks/useFollowingFeed';
 import { VibeCard } from './VibeCard';
-import { GlassPanel } from '@/components/ui/GlassPanel';
-import { useTheme } from '@/hooks/useTheme';
 
 export interface VibeFeedProps {
   className?: string;
@@ -15,8 +13,6 @@ export interface VibeFeedProps {
 }
 
 export function VibeFeed({ className, feedType = 'everyone' }: VibeFeedProps) {
-  const { theme } = useTheme();
-  const isNeumorphic = theme === 'neumorphic';
 
   const everyoneFeed = useVibes();
   const followingFeed = useFollowingFeed();
@@ -71,16 +67,16 @@ export function VibeFeed({ className, feedType = 'everyone' }: VibeFeedProps) {
     return (
       <div className={cn('space-y-4', className)}>
         {[...Array(3)].map((_, i) => (
-          <GlassPanel key={i} className="animate-pulse">
+          <div key={i} className="bg-terminal-bg-card border border-terminal-border rounded-lg p-4 animate-pulse">
             <div className="flex items-center gap-3 mb-4">
-              <div className={cn("w-10 h-10 rounded-full", isNeumorphic ? "bg-neumorphic-dark/20" : "bg-white/10")} />
+              <div className="w-10 h-10 rounded-full bg-terminal-bg-hover" />
               <div className="flex-1">
-                <div className={cn("h-4 w-24 rounded mb-1", isNeumorphic ? "bg-neumorphic-dark/20" : "bg-white/10")} />
-                <div className={cn("h-3 w-16 rounded", isNeumorphic ? "bg-neumorphic-dark/20" : "bg-white/10")} />
+                <div className="h-4 w-24 rounded mb-1 bg-terminal-bg-hover" />
+                <div className="h-3 w-16 rounded bg-terminal-bg-hover" />
               </div>
             </div>
-            <div className={cn("aspect-video rounded-xl", isNeumorphic ? "bg-neumorphic-dark/20" : "bg-white/10")} />
-          </GlassPanel>
+            <div className="aspect-video rounded-lg bg-terminal-bg-hover" />
+          </div>
         ))}
       </div>
     );
@@ -88,40 +84,40 @@ export function VibeFeed({ className, feedType = 'everyone' }: VibeFeedProps) {
 
   if (error) {
     return (
-      <GlassPanel className={cn('text-center py-12', className)}>
-        <div className="text-4xl mb-4">😔</div>
-        <h3 className={cn("text-xl font-semibold mb-2", isNeumorphic ? "text-neumorphic-text" : "text-white")}>
-          Something went wrong
+      <div className={cn('bg-terminal-bg-card border border-terminal-border rounded-lg text-center py-12', className)}>
+        <div className="text-4xl mb-4">💥</div>
+        <h3 className="text-lg font-mono text-terminal-text mb-2">
+          // error: something went wrong
         </h3>
-        <p className={cn("mb-4", isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/60")}>{error}</p>
+        <p className="text-terminal-text-secondary text-sm font-mono mb-4">{error}</p>
         <button
           onClick={() => refetch()}
-          className="text-vibe-purple hover:text-vibe-purple-light transition-colors"
+          className="font-mono text-sm text-terminal-accent hover:underline"
         >
-          Try again
+          [ retry ]
         </button>
-      </GlassPanel>
+      </div>
     );
   }
 
   if (vibes.length === 0) {
     return (
-      <GlassPanel className={cn('text-center py-12', className)}>
+      <div className={cn('bg-terminal-bg-card border border-terminal-border rounded-lg text-center py-12', className)}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="text-4xl mb-4">{feedType === 'following' ? '👋' : '✨'}</div>
-          <h3 className={cn("text-xl font-semibold mb-2", isNeumorphic ? "text-neumorphic-text" : "text-white")}>
-            {feedType === 'following' ? 'No vibes from friends yet' : 'No vibes yet'}
+          <div className="text-4xl mb-4">{feedType === 'following' ? '📭' : '🚀'}</div>
+          <h3 className="text-lg font-mono text-terminal-text mb-2">
+            {feedType === 'following' ? '// no builds from friends yet' : '// no builds yet'}
           </h3>
-          <p className={isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/60"}>
+          <p className="text-terminal-text-secondary text-sm font-mono">
             {feedType === 'following'
-              ? 'Follow some vibers to see their posts here!'
-              : 'Be the first to share your vibe!'}
+              ? '$ follow some devs to see their builds here'
+              : '$ be the first to ship a build!'}
           </p>
         </motion.div>
-      </GlassPanel>
+      </div>
     );
   }
 
@@ -133,12 +129,9 @@ export function VibeFeed({ className, feedType = 'everyone' }: VibeFeedProps) {
           whileTap={{ scale: 0.95 }}
           onClick={() => refetch()}
           disabled={isRefetching}
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-full text-sm transition-all",
-            isNeumorphic
-              ? "bg-neumorphic-bg shadow-neumorphic-sm text-neumorphic-text hover:shadow-neumorphic-inset"
-              : "bg-glass-white backdrop-blur-glass border border-glass-border text-white/80 hover:text-white hover:bg-white/20"
-          )}
+          className="flex items-center gap-2 px-4 py-2 rounded-md text-sm font-mono transition-all
+                     bg-terminal-bg-elevated border border-terminal-border
+                     text-terminal-text-secondary hover:text-terminal-text hover:border-terminal-border-bright"
         >
           <motion.svg
             animate={isRefetching ? { rotate: 360 } : {}}
@@ -151,7 +144,7 @@ export function VibeFeed({ className, feedType = 'everyone' }: VibeFeedProps) {
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </motion.svg>
-          {isRefetching ? 'Refreshing...' : 'Refresh feed'}
+          {isRefetching ? '[ syncing... ]' : '[ refresh ]'}
         </motion.button>
       </div>
 
@@ -172,11 +165,11 @@ export function VibeFeed({ className, feedType = 'everyone' }: VibeFeedProps) {
       {/* Load more trigger */}
       <div ref={loadMoreRef} className="py-4 flex justify-center">
         {isLoadingMore && (
-          <div className="w-6 h-6 border-2 border-vibe-purple border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-terminal-accent border-t-transparent rounded-full animate-spin" />
         )}
         {!hasMore && vibes.length > 0 && (
-          <p className={cn("text-sm", isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/40")}>
-            You&apos;ve seen all the vibes
+          <p className="text-sm font-mono text-terminal-text-dim">
+            // end of feed
           </p>
         )}
       </div>

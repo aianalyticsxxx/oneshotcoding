@@ -79,8 +79,9 @@ export function ReportButton({
       <button
         onClick={handleClick}
         className={cn(
-          'p-2 rounded-lg transition-colors',
-          'text-terminal-text-dim hover:text-red-400 hover:bg-red-500/10',
+          'py-1.5 px-3 rounded-md transition-colors',
+          'bg-terminal-bg-elevated border border-terminal-border',
+          'text-terminal-text-dim hover:text-red-400 hover:border-red-400/50',
           className
         )}
         title={`Report ${targetType}`}
@@ -95,7 +96,7 @@ export function ReportButton({
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"
+            d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
           />
         </svg>
       </button>

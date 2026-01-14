@@ -33,8 +33,13 @@
     "lint:fix": "turbo lint -- --fix",
     "prepare": "node .husky/install.mjs || true",
     "test": "turbo test",
-    "test:coverage": "turbo test -- --coverage",
-    "test:watch": "turbo test -- --watch",
+    "test:api": "pnpm --filter @oneshotcoding/api test",
+    "test:web": "pnpm --filter @oneshotcoding/web test",
+    "test:security": "pnpm --filter @oneshotcoding/api test:security",
+    "test:coverage": "turbo test:coverage",
+    "test:watch": "turbo test:watch",
+    "e2e": "pnpm --filter @oneshotcoding/e2e test",
+    "e2e:ui": "pnpm --filter @oneshotcoding/e2e test:ui",
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {

@@ -54,9 +54,10 @@ export function ScreenContent() {
           marginBottom: '4px',
         }}
       >
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style={{ filter: 'drop-shadow(0 0 10px rgba(217,119,6,0.5))' }}>
-          <circle cx="12" cy="12" r="10" stroke="#D97706" strokeWidth="2" />
-          <circle cx="12" cy="12" r="5" stroke="#D97706" strokeWidth="2" />
+        <svg width="48" height="48" viewBox="0 0 100 100" fill="none" style={{ filter: 'drop-shadow(0 0 10px rgba(217,119,6,0.5))' }}>
+          <circle cx="50" cy="50" r="42" stroke="#D97706" strokeWidth="8" />
+          <circle cx="50" cy="50" r="22" stroke="#D97706" strokeWidth="8" />
+          <circle cx="50" cy="50" r="8" fill="#D97706" />
         </svg>
       </div>
 

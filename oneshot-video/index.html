@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OneShotCoding - Launch Video</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&family=Inter:wght@900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #050505;
+      --white: #ffffff;
+      --lime: #BFFF00;
+      --pink: #FF1F71;
+      --blue: #00BFFF;
+      --mono: 'JetBrains Mono', monospace;
+      --display: 'Bebas Neue', sans-serif;
+      --heavy: 'Inter', sans-serif;
+    }
+
+    html, body {
+      background: var(--bg);
+      width: 1080px;
+      height: 1080px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Noise texture overlay */
+    .noise {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Animated gradient background */
+    .bg-gradient {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      top: -50%;
+      left: -50%;
+      background:
+        radial-gradient(ellipse 600px 600px at 20% 20%, rgba(191,255,0,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 500px 500px at 80% 80%, rgba(255,31,113,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse 400px 400px at 60% 30%, rgba(0,191,255,0.08) 0%, transparent 50%);
+      animation: bgShift 20s ease-in-out infinite;
+    }
+
+    @keyframes bgShift {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(2%, -2%) rotate(1deg); }
+      66% { transform: translate(-2%, 2%) rotate(-1deg); }
+    }
+
+    /* All scenes container */
+    .scenes {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .scene {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ============================================
+       SCENE 1: TYPING PROMPT (0s - 4.5s)
+       ============================================ */
+    .scene-1 {
+      animation: fadeIn 0.3s ease-out 0.2s forwards, fadeOut 0.2s ease-in 4.3s forwards;
+    }
+
+    .terminal-window {
+      background: rgba(20,20,20,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      width: 850px;
+      overflow: hidden;
+      transform: translateY(20px);
+      opacity: 0;
+      animation: slideUp 0.4s ease-out 0.4s forwards;
+    }
+
+    .terminal-header {
+      background: rgba(255,255,255,0.05);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .terminal-dot.red { background: #FF5F56; }
+    .terminal-dot.yellow { background: #FFBD2E; }
+    .terminal-dot.green { background: #27CA40; }
+
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      margin-right: 52px;
+    }
+
+    .terminal-body {
+      padding: 30px;
+      min-height: 180px;
+    }
+
+    .prompt-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .prompt-symbol {
+      color: var(--lime);
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .prompt-text {
+      font-family: var(--mono);
+      font-size: 20px;
+      color: var(--white);
+      line-height: 1.5;
+      overflow: hidden;
+    }
+
+    .typing-text {
+      display: inline;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 0;
+      animation: typeText 2.5s steps(50) 0.8s forwards;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 12px;
+      height: 24px;
+      background: var(--lime);
+      margin-left: 2px;
+      animation: blink 0.6s step-end infinite;
+    }
+
+    @keyframes typeText {
+      to { width: 680px; }
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* ============================================
+       SCENE 2: BIG "1" SLAM (4.5s - 7.5s)
+       ============================================ */
+    .scene-2 {
+      animation: fadeIn 0.1s ease-out 4.5s forwards, fadeOut 0.15s ease-in 7.35s forwards;
+    }
+
+    .big-number {
+      font-family: var(--heavy);
+      font-size: 650px;
+      font-weight: 900;
+      color: var(--white);
+      line-height: 0.8;
+      transform: scale(3);
+      opacity: 0;
+      animation: slamIn 0.25s cubic-bezier(0.22, 1, 0.36, 1) 4.6s forwards;
+      text-shadow:
+        0 0 100px rgba(191,255,0,0.3),
+        0 0 200px rgba(191,255,0,0.1);
+    }
+
+    @keyframes slamIn {
+      0% { transform: scale(3); opacity: 0; }
+      60% { transform: scale(0.95); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .shot-text {
+      font-family: var(--display);
+      font-size: 120px;
+      letter-spacing: 30px;
+      color: var(--lime);
+      margin-top: -40px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: slideUp 0.3s ease-out 5s forwards;
+    }
+
+    /* ============================================
+       SCENE 3: THE RULES (7.5s - 11.5s)
+       ============================================ */
+    .scene-3 {
+      animation: fadeIn 0.2s ease-out 7.5s forwards, fadeOut 0.2s ease-in 11.3s forwards;
+    }
+
+    .rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 35px;
+    }
+
+    .rule-item {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+
+    .rule-item:nth-child(1) { animation: ruleSlide 0.35s ease-out 7.7s forwards; }
+    .rule-item:nth-child(2) { animation: ruleSlide 0.35s ease-out 8.3s forwards; }
+    .rule-item:nth-child(3) { animation: ruleSlide 0.35s ease-out 8.9s forwards; }
+
+    @keyframes ruleSlide {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .rule-number {
+      font-family: var(--heavy);
+      font-size: 80px;
+      font-weight: 900;
+      color: var(--lime);
+      width: 100px;
+      text-align: center;
+    }
+
+    .rule-text {
+      font-family: var(--display);
+      font-size: 72px;
+      letter-spacing: 4px;
+      color: var(--white);
+    }
+
+    .rule-text .dim {
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* Strike-through animation */
+    .rule-item:nth-child(1) .strike-line,
+    .rule-item:nth-child(2) .strike-line {
+      position: absolute;
+      height: 6px;
+      background: var(--pink);
+      left: 130px;
+      width: 0;
+    }
+
+    .rule-item:nth-child(1) .strike-line {
+      animation: strikeThrough 0.2s ease-out 9.6s forwards;
+      width: 0;
+    }
+
+    .rule-item:nth-child(2) .strike-line {
+      animation: strikeThrough 0.2s ease-out 9.8s forwards;
+      width: 0;
+    }
+
+    .rule-item {
+      position: relative;
+    }
+
+    @keyframes strikeThrough {
+      to { width: 330px; }
+    }
+
+    /* Dim out rules 1 and 2 */
+    .rule-item:nth-child(1),
+    .rule-item:nth-child(2) {
+      animation: ruleSlide 0.35s ease-out 7.7s forwards, dimOut 0.3s ease-out 9.6s forwards;
+    }
+
+    .rule-item:nth-child(2) {
+      animation: ruleSlide 0.35s ease-out 8.3s forwards, dimOut 0.3s ease-out 9.8s forwards;
+    }
+
+    @keyframes dimOut {
+      to { opacity: 0.25; }
+    }
+
+    /* Highlight rule 3 */
+    .rule-item:nth-child(3) .rule-text {
+      animation: highlight 0.3s ease-out 10s forwards;
+    }
+
+    @keyframes highlight {
+      to { color: var(--lime); transform: scale(1.05); }
+    }
+
+    /* ============================================
+       SCENE 4: SHOWCASE GRID (11.5s - 16s)
+       ============================================ */
+    .scene-4 {
+      animation: fadeIn 0.25s ease-out 11.5s forwards, fadeOut 0.25s ease-in 15.75s forwards;
+    }
+
+    .showcase-title {
+      font-family: var(--display);
+      font-size: 56px;
+      letter-spacing: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 50px;
+      opacity: 0;
+      animation: fadeIn 0.3s ease-out 11.7s forwards;
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 280px);
+      gap: 25px;
+    }
+
+    .showcase-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 35px 25px;
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.8) translateY(30px);
+    }
+
+    .showcase-card:nth-child(1) { animation: cardPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 11.9s forwards; }
+    .showcase-card:nth-child(2) { animation: cardPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 12.15s forwards; }
+    .showcase-card:nth-child(3) { animation: cardPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 12.4s forwards; }
+
+    @keyframes cardPop {
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .card-emoji {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-family: var(--heavy);
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--white);
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .card-badge {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 6px 14px;
+      background: rgba(191,255,0,0.15);
+      border: 1px solid var(--lime);
+      border-radius: 20px;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--lime);
+      letter-spacing: 1px;
+    }
+
+    /* ============================================
+       SCENE 5: FINAL CTA (16s - 22s)
+       ============================================ */
+    .scene-5 {
+      animation: fadeIn 0.3s ease-out 16s forwards;
+    }
+
+    .final-logo {
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+      opacity: 0;
+      transform: scale(0.9);
+      animation: logoReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 16.3s forwards;
+    }
+
+    @keyframes logoReveal {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .logo-one {
+      font-family: var(--heavy);
+      font-size: 130px;
+      font-weight: 900;
+      color: var(--lime);
+    }
+
+    .logo-shot {
+      font-family: var(--heavy);
+      font-size: 130px;
+      font-weight: 900;
+      color: var(--white);
+    }
+
+    .logo-coding {
+      font-family: var(--display);
+      font-size: 130px;
+      letter-spacing: 8px;
+      color: rgba(255,255,255,0.3);
+      margin-left: 15px;
+    }
+
+    .final-tagline {
+      font-family: var(--mono);
+      font-size: 28px;
+      color: rgba(255,255,255,0.6);
+      margin-top: 30px;
+      opacity: 0;
+      animation: fadeIn 0.4s ease-out 16.8s forwards;
+    }
+
+    .final-cta {
+      margin-top: 60px;
+      padding: 24px 70px;
+      background: var(--lime);
+      color: var(--bg);
+      font-family: var(--heavy);
+      font-size: 28px;
+      font-weight: 900;
+      border: none;
+      border-radius: 60px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: ctaReveal 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 17.2s forwards,
+                 ctaGlow 1.5s ease-in-out 18s infinite;
+    }
+
+    @keyframes ctaReveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes ctaGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(191,255,0,0.5), 0 10px 40px rgba(191,255,0,0.3); }
+      50% { box-shadow: 0 0 0 15px rgba(191,255,0,0), 0 10px 60px rgba(191,255,0,0.5); }
+    }
+
+    .final-subtext {
+      font-family: var(--mono);
+      font-size: 16px;
+      color: rgba(255,255,255,0.3);
+      margin-top: 30px;
+      opacity: 0;
+      animation: fadeIn 0.4s ease-out 17.6s forwards;
+    }
+
+    /* ============================================
+       UTILITY ANIMATIONS
+       ============================================ */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Flash effect between scenes */
+    .flash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--lime);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 100;
+      animation:
+        flashBang 0.1s ease-out 4.45s,
+        flashBang 0.08s ease-out 7.45s,
+        flashBang 0.08s ease-out 11.45s,
+        flashBang 0.1s ease-out 15.95s;
+    }
+
+    @keyframes flashBang {
+      0% { opacity: 0; }
+      50% { opacity: 0.8; }
+      100% { opacity: 0; }
+    }
+
+    /* Recording indicator - REMOVE FOR FINAL RECORDING */
+    .rec-indicator {
+      position: fixed;
+      top: 30px;
+      right: 30px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 14px;
+      color: var(--pink);
+      opacity: 0.8;
+      z-index: 10000;
+    }
+
+    .rec-dot {
+      width: 12px;
+      height: 12px;
+      background: var(--pink);
+      border-radius: 50%;
+      animation: recBlink 1s ease-in-out infinite;
+    }
+
+    @keyframes recBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* Timer for reference - REMOVE FOR FINAL RECORDING */
+    .timer {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      font-family: var(--mono);
+      font-size: 48px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.15);
+      z-index: 10000;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="bg-gradient"></div>
+  <div class="flash"></div>
+
+  <!-- Remove these for final recording -->
+  <div class="rec-indicator">
+    <div class="rec-dot"></div>
+    REC
+  </div>
+  <div class="timer" id="timer">0.0</div>
+
+  <div class="scenes">
+    <!-- SCENE 1: Terminal with typing prompt -->
+    <div class="scene scene-1">
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <div class="terminal-dot red"></div>
+          <div class="terminal-dot yellow"></div>
+          <div class="terminal-dot green"></div>
+          <div class="terminal-title">claude — oneshot</div>
+        </div>
+        <div class="terminal-body">
+          <div class="prompt-line">
+            <span class="prompt-symbol">→</span>
+            <div class="prompt-text">
+              <span class="typing-text">Build a multiplayer game with matchmaking and leaderboards</span><span class="cursor"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 2: Big "1" slam -->
+    <div class="scene scene-2">
+      <div class="big-number">1</div>
+      <div class="shot-text">SHOT</div>
+    </div>
+
+    <!-- SCENE 3: The rules -->
+    <div class="scene scene-3">
+      <div class="rules-list">
+        <div class="rule-item">
+          <div class="rule-number">1</div>
+          <div class="rule-text">PROMPT</div>
+          <div class="strike-line"></div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-number">1</div>
+          <div class="rule-text">RESPONSE</div>
+          <div class="strike-line"></div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-number">1</div>
+          <div class="rule-text">SHIP IT</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 4: Showcase what's been built -->
+    <div class="scene scene-4">
+      <div class="showcase-title">BUILT IN ONE SHOT</div>
+      <div class="showcase-grid">
+        <div class="showcase-card">
+          <div class="card-emoji">🎮</div>
+          <div class="card-title">GAMES</div>
+          <div class="card-desc">Multiplayer. Real-time.</div>
+          <div class="card-badge">ONE PROMPT</div>
+        </div>
+        <div class="showcase-card">
+          <div class="card-emoji">🚀</div>
+          <div class="card-title">FULL APPS</div>
+          <div class="card-desc">Auth. Database. Deploy.</div>
+          <div class="card-badge">ONE PROMPT</div>
+        </div>
+        <div class="showcase-card">
+          <div class="card-emoji">🧩</div>
+          <div class="card-title">EXTENSIONS</div>
+          <div class="card-desc">Chrome. Working. Shipped.</div>
+          <div class="card-badge">ONE PROMPT</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENE 5: Final CTA -->
+    <div class="scene scene-5">
+      <div class="final-logo">
+        <span class="logo-one">One</span><span class="logo-shot">Shot</span><span class="logo-coding">CODING</span>
+      </div>
+      <div class="final-tagline">No edits. No iterations. Just ship.</div>
+      <button class="final-cta">CAN YOU DO IT?</button>
+      <div class="final-subtext">Challenges start this week →</div>
+    </div>
+  </div>
+
+  <script>
+    // Timer for reference during recording - shows elapsed seconds
+    const timerEl = document.getElementById('timer');
+    const startTime = Date.now();
+
+    function updateTimer() {
+      const elapsed = (Date.now() - startTime) / 1000;
+      timerEl.textContent = elapsed.toFixed(1);
+      if (elapsed < 25) {
+        requestAnimationFrame(updateTimer);
+      }
+    }
+    updateTimer();
+
+    // Auto-replay for testing (comment out for final recording)
+    // setTimeout(() => location.reload(), 23000);
+  </script>
+</body>
+</html>

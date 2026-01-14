@@ -107,7 +107,6 @@ export function VibeFeed({ className, feedType = 'everyone' }: VibeFeedProps) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="text-4xl mb-4">{feedType === 'following' ? '📭' : '🚀'}</div>
           <h3 className="text-lg font-mono text-terminal-text mb-2">
             {feedType === 'following' ? '// no builds from friends yet' : '// no builds yet'}
           </h3>

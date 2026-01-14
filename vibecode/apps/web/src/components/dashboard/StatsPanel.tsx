@@ -1,23 +1,21 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useUserStats } from '@/hooks/useUserStats';
 
 interface StatsPanelProps {
-  streak?: number;
-  totalPosts?: number;
-  totalSparkles?: number;
-  rank?: number;
   username?: string;
 }
 
-export function StatsPanel({
-  streak = 0,
-  totalPosts = 0,
-  totalSparkles = 0,
-  rank,
-  username,
-}: StatsPanelProps) {
-  const stats = [
+export function StatsPanel({ username }: StatsPanelProps) {
+  const { stats, isLoading, error } = useUserStats(username);
+
+  const streak = stats?.streak ?? 0;
+  const totalPosts = stats?.totalPosts ?? 0;
+  const totalSparkles = stats?.totalSparkles ?? 0;
+  const rank = stats?.rank;
+
+  const statsList = [
     { label: 'streak', value: streak, suffix: streak > 0 ? ' days' : '', highlight: streak >= 7 },
     { label: 'posts', value: totalPosts, suffix: '' },
     { label: 'sparkles', value: totalSparkles, suffix: '' },
@@ -46,22 +44,36 @@ export function StatsPanel({
 
       {/* Stats Body */}
       <div className="p-4 space-y-2">
-        {stats.map((stat, index) => (
-          <div
-            key={stat.label}
-            className="flex items-center justify-between font-mono text-sm"
-          >
-            <span className="text-terminal-text-dim">{stat.label}:</span>
-            <span className={stat.highlight ? 'text-terminal-accent' : 'text-terminal-text'}>
-              {stat.prefix || ''}{stat.value.toLocaleString()}{stat.suffix}
-              {stat.label === 'streak' && streak >= 7 && (
-                <span className="ml-1">
-                  {streak >= 100 ? '💯' : streak >= 50 ? '🌟' : streak >= 30 ? '⭐' : streak >= 14 ? '💪' : '🔥'}
-                </span>
-              )}
+        {isLoading ? (
+          <div className="py-2 text-center">
+            <span className="font-mono text-xs text-terminal-text-dim animate-pulse">
+              loading stats...
             </span>
           </div>
-        ))}
+        ) : error ? (
+          <div className="py-2 text-center">
+            <span className="font-mono text-xs text-terminal-error">
+              error loading stats
+            </span>
+          </div>
+        ) : (
+          statsList.map((stat) => (
+            <div
+              key={stat.label}
+              className="flex items-center justify-between font-mono text-sm"
+            >
+              <span className="text-terminal-text-dim">{stat.label}:</span>
+              <span className={stat.highlight ? 'text-terminal-accent' : 'text-terminal-text'}>
+                {stat.prefix || ''}{stat.value.toLocaleString()}{stat.suffix}
+                {stat.label === 'streak' && streak >= 7 && (
+                  <span className="ml-1">
+                    {streak >= 100 ? '💯' : streak >= 50 ? '🌟' : streak >= 30 ? '⭐' : streak >= 14 ? '💪' : '🔥'}
+                  </span>
+                )}
+              </span>
+            </div>
+          ))
+        )}
       </div>
     </motion.div>
   );

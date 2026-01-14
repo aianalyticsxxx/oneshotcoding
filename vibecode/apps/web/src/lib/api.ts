@@ -224,6 +224,34 @@ export interface TagShotsResponse {
   hasMore: boolean;
 }
 
+// User Stats types
+export interface UserStats {
+  streak: number;
+  totalPosts: number;
+  totalSparkles: number;
+  rank: number | null;
+}
+
+// Activity Feed types
+export interface ActivityItem {
+  id: string;
+  type: 'shot' | 'sparkle' | 'follow';
+  actorId: string;
+  actorUsername: string;
+  actorDisplayName: string;
+  actorAvatarUrl: string | null;
+  targetUserId: string | null;
+  targetUsername: string | null;
+  shotId: string | null;
+  timestamp: string;
+}
+
+export interface ActivityFeedResponse {
+  items: ActivityItem[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
 /**
  * Base fetch wrapper with auth and automatic token refresh
  */
@@ -541,4 +569,12 @@ export const api = {
 
   getShotsByTag: (tagName: string, cursor?: string) =>
     get<TagShotsResponse>(`/tags/${encodeURIComponent(tagName)}/shots${cursor ? `?cursor=${cursor}` : ''}`),
+
+  // User Stats
+  getUserStats: (username: string) =>
+    get<UserStats>(`/users/${username}/stats`),
+
+  // Activity Feed
+  getActivity: (mode: 'personal' | 'global' = 'personal', cursor?: string) =>
+    get<ActivityFeedResponse>(`/activity?mode=${mode}${cursor ? `&cursor=${cursor}` : ''}`),
 };

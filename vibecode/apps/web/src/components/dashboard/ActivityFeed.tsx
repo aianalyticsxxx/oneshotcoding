@@ -3,54 +3,52 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { formatRelativeTime } from '@/lib/utils';
-
-interface ActivityItem {
-  id: string;
-  type: 'post' | 'sparkle' | 'follow';
-  username: string;
-  timestamp: Date;
-  targetUser?: string;
-}
+import { useActivity, ActivityMode } from '@/hooks/useActivity';
+import { useAuth } from '@/hooks/useAuth';
+import type { ActivityItem as ApiActivityItem } from '@/lib/api';
 
 interface ActivityFeedProps {
-  items?: ActivityItem[];
+  mode?: ActivityMode;
 }
 
-const defaultItems: ActivityItem[] = [
-  { id: '1', type: 'post', username: 'sarah', timestamp: new Date(Date.now() - 1000 * 60 * 5) },
-  { id: '2', type: 'sparkle', username: 'mike', timestamp: new Date(Date.now() - 1000 * 60 * 12), targetUser: 'you' },
-  { id: '3', type: 'post', username: 'alex', timestamp: new Date(Date.now() - 1000 * 60 * 25) },
-  { id: '4', type: 'follow', username: 'jordan', timestamp: new Date(Date.now() - 1000 * 60 * 45), targetUser: 'you' },
-  { id: '5', type: 'sparkle', username: 'casey', timestamp: new Date(Date.now() - 1000 * 60 * 60), targetUser: 'sarah' },
-];
-
-function getActivityText(item: ActivityItem): string {
+function getActivityText(item: ApiActivityItem, currentUsername?: string): string {
   switch (item.type) {
-    case 'post':
+    case 'shot':
       return 'shipped a build';
     case 'sparkle':
-      return item.targetUser === 'you' ? 'sparked your post' : `sparked @${item.targetUser}`;
+      // Check if target is the current user
+      if (item.targetUsername === currentUsername) {
+        return 'sparked your post';
+      }
+      return item.targetUsername ? `sparked @${item.targetUsername}` : 'sparked a post';
     case 'follow':
-      return 'followed you';
+      // Check if target is the current user
+      if (item.targetUsername === currentUsername) {
+        return 'followed you';
+      }
+      return item.targetUsername ? `followed @${item.targetUsername}` : 'followed someone';
     default:
       return '';
   }
 }
 
-function getActivityIcon(type: ActivityItem['type']): string {
+function getActivityIcon(type: ApiActivityItem['type']): string {
   switch (type) {
-    case 'post':
-      return '→';
+    case 'shot':
+      return '\u2192';
     case 'sparkle':
-      return '✨';
+      return '\u2728';
     case 'follow':
       return '+';
     default:
-      return '•';
+      return '\u2022';
   }
 }
 
-export function ActivityFeed({ items = defaultItems }: ActivityFeedProps) {
+export function ActivityFeed({ mode = 'personal' }: ActivityFeedProps) {
+  const { user } = useAuth();
+  const { items, isLoading, error } = useActivity(mode);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -74,30 +72,50 @@ export function ActivityFeed({ items = defaultItems }: ActivityFeedProps) {
 
       {/* Activity Items */}
       <div className="p-3 space-y-0.5 max-h-64 overflow-y-auto scrollbar-terminal">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-start gap-2 py-1.5 px-2 rounded-md text-sm font-mono"
-          >
-            <span className="text-terminal-accent flex-shrink-0 w-4">
-              {getActivityIcon(item.type)}
-            </span>
-            <div className="flex-1 min-w-0">
-              <Link
-                href={`/profile/${item.username}`}
-                className="text-terminal-text hover:text-terminal-accent transition-colors"
-              >
-                @{item.username}
-              </Link>
-              <span className="text-terminal-text-secondary ml-1">
-                {getActivityText(item)}
-              </span>
-            </div>
-            <span className="text-terminal-text-dim text-xs flex-shrink-0">
-              {formatRelativeTime(item.timestamp)}
+        {isLoading ? (
+          <div className="py-4 text-center">
+            <span className="font-mono text-xs text-terminal-text-dim animate-pulse">
+              loading activity...
             </span>
           </div>
-        ))}
+        ) : error ? (
+          <div className="py-4 text-center">
+            <span className="font-mono text-xs text-terminal-error">
+              {error.includes('401') ? 'sign in to see activity' : 'error loading activity'}
+            </span>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="py-4 text-center">
+            <span className="font-mono text-xs text-terminal-text-dim">
+              no recent activity
+            </span>
+          </div>
+        ) : (
+          items.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-start gap-2 py-1.5 px-2 rounded-md text-sm font-mono"
+            >
+              <span className="text-terminal-accent flex-shrink-0 w-4">
+                {getActivityIcon(item.type)}
+              </span>
+              <div className="flex-1 min-w-0">
+                <Link
+                  href={`/profile/${item.actorUsername}`}
+                  className="text-terminal-text hover:text-terminal-accent transition-colors"
+                >
+                  @{item.actorUsername}
+                </Link>
+                <span className="text-terminal-text-secondary ml-1">
+                  {getActivityText(item, user?.username)}
+                </span>
+              </div>
+              <span className="text-terminal-text-dim text-xs flex-shrink-0">
+                {formatRelativeTime(new Date(item.timestamp))}
+              </span>
+            </div>
+          ))
+        )}
       </div>
     </motion.div>
   );

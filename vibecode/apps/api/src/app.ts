@@ -19,6 +19,7 @@ import { presenceRoutes } from './routes/users/presence.js';
 import { uploadRoutes } from './routes/upload/index.js';
 import { challengeRoutes } from './routes/challenges/index.js';
 import { tagRoutes } from './routes/tags/index.js';
+import { activityRoutes } from './routes/activity/index.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify({
@@ -96,6 +97,7 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(uploadRoutes, { prefix: '/upload' });
   await app.register(challengeRoutes, { prefix: '/challenges' });
   await app.register(tagRoutes, { prefix: '/tags' });
+  await app.register(activityRoutes, { prefix: '/activity' });
 
   // Health check endpoint
   app.get('/health', async () => {

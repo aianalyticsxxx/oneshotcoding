@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify';
 import { UserService } from '../../services/user.service.js';
 import { ShotService } from '../../services/shot.service.js';
+import { StatsService } from '../../services/stats.service.js';
 import { userSchemas } from '../../schemas/user.schemas.js';
 
 interface UsernameParams {
@@ -20,6 +21,7 @@ interface UpdateUserBody {
 export const userRoutes: FastifyPluginAsync = async (fastify) => {
   const userService = new UserService(fastify);
   const shotService = new ShotService(fastify);
+  const statsService = new StatsService(fastify);
 
   // GET /users/:username - Get user profile
   fastify.get<{ Params: UsernameParams }>('/:username', {
@@ -36,6 +38,21 @@ export const userRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     return user;
+  });
+
+  // GET /users/:username/stats - Get user stats (streak, posts, sparkles, rank)
+  fastify.get<{ Params: UsernameParams }>('/:username/stats', {
+    preHandler: [fastify.optionalAuth],
+  }, async (request, reply) => {
+    const { username } = request.params;
+
+    const stats = await statsService.getUserStats(username);
+
+    if (!stats) {
+      return reply.status(404).send({ error: 'User not found' });
+    }
+
+    return stats;
   });
 
   // GET /users/:username/shots - Get user's shot history

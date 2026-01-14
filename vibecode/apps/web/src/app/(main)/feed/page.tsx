@@ -17,15 +17,9 @@ export default function FeedPage() {
 
   const sidebar = (
     <>
-      <StatsPanel
-        username={user?.username}
-        streak={7}
-        totalPosts={23}
-        totalSparkles={142}
-        rank={42}
-      />
+      <StatsPanel username={user?.username} />
       <TrendingPanel />
-      <ActivityFeed />
+      <ActivityFeed mode="personal" />
     </>
   );
 

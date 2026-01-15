@@ -23,7 +23,7 @@ export function ScreenContent() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '24px',
+        padding: '16px',
         boxSizing: 'border-box',
         position: 'relative',
         overflow: 'hidden',
@@ -55,10 +55,10 @@ export function ScreenContent() {
       {/* Concentric Circles Logo */}
       <div
         style={{
-          marginBottom: '4px',
+          marginBottom: '2px',
         }}
       >
-        <svg width="48" height="48" viewBox="0 0 100 100" fill="none" style={{ filter: 'drop-shadow(0 0 10px rgba(217,119,6,0.5))' }}>
+        <svg width="40" height="40" viewBox="0 0 100 100" fill="none" style={{ filter: 'drop-shadow(0 0 10px rgba(217,119,6,0.5))' }}>
           <circle cx="50" cy="50" r="42" stroke="#D97706" strokeWidth="8" />
           <circle cx="50" cy="50" r="22" stroke="#D97706" strokeWidth="8" />
           <circle cx="50" cy="50" r="8" fill="#D97706" />
@@ -68,9 +68,9 @@ export function ScreenContent() {
       {/* Command line style title */}
       <div
         style={{
-          fontSize: '10px',
+          fontSize: '9px',
           color: '#737373',
-          margin: '0 0 8px 0',
+          margin: '0 0 4px 0',
           letterSpacing: '1px',
         }}
       >
@@ -80,9 +80,9 @@ export function ScreenContent() {
       {/* Title */}
       <h1
         style={{
-          fontSize: '26px',
+          fontSize: '22px',
           fontWeight: 700,
-          margin: '0 0 4px 0',
+          margin: '0 0 2px 0',
           letterSpacing: '-0.5px',
           color: '#F5F5F5',
         }}
@@ -93,9 +93,9 @@ export function ScreenContent() {
       {/* Tagline */}
       <p
         style={{
-          fontSize: '10px',
+          fontSize: '9px',
           color: '#737373',
-          margin: '0 0 24px 0',
+          margin: '0 0 16px 0',
           letterSpacing: '1px',
         }}
       >
@@ -109,15 +109,15 @@ export function ScreenContent() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '10px',
+          gap: '8px',
           width: '100%',
-          maxWidth: '240px',
-          padding: '12px 20px',
+          maxWidth: '220px',
+          padding: '10px 16px',
           background: 'linear-gradient(135deg, #D97706 0%, #B45309 100%)',
           color: '#ffffff',
           border: 'none',
           borderRadius: '6px',
-          fontSize: '13px',
+          fontSize: '12px',
           fontWeight: 600,
           fontFamily: 'inherit',
           cursor: 'pointer',
@@ -133,7 +133,7 @@ export function ScreenContent() {
           e.currentTarget.style.boxShadow = '0 4px 15px rgba(217,119,6,0.3)';
         }}
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path
             fillRule="evenodd"
             clipRule="evenodd"
@@ -146,9 +146,9 @@ export function ScreenContent() {
       {/* Divider */}
       <div
         style={{
-          fontSize: '10px',
+          fontSize: '9px',
           color: '#737373',
-          margin: '12px 0',
+          margin: '8px 0',
         }}
       >
         or
@@ -161,15 +161,15 @@ export function ScreenContent() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: '10px',
+          gap: '8px',
           width: '100%',
-          maxWidth: '240px',
-          padding: '12px 20px',
+          maxWidth: '220px',
+          padding: '10px 16px',
           background: '#000000',
           color: '#ffffff',
           border: '1px solid #404040',
           borderRadius: '6px',
-          fontSize: '13px',
+          fontSize: '12px',
           fontWeight: 600,
           fontFamily: 'inherit',
           cursor: 'pointer',
@@ -184,7 +184,7 @@ export function ScreenContent() {
           e.currentTarget.style.background = '#000000';
         }}
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
           <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
         </svg>
         Continue with X
@@ -193,8 +193,8 @@ export function ScreenContent() {
       {/* Community tagline */}
       <div
         style={{
-          marginTop: '20px',
-          fontSize: '9px',
+          marginTop: '12px',
+          fontSize: '8px',
           color: '#737373',
           letterSpacing: '1px',
         }}

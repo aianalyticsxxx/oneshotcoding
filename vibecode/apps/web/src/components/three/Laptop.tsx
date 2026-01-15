@@ -181,17 +181,17 @@ export function Laptop({ children }: LaptopProps) {
               transform
               occlude
               position={[0, -0.02, SCREEN_DEPTH / 2 + 0.015]}
-              scale={0.165}
+              scale={0.22}
               style={{
-                width: '420px',
-                height: '280px',
+                width: '540px',
+                height: '360px',
                 pointerEvents: 'auto',
               }}
             >
               <div
                 style={{
-                  width: '420px',
-                  height: '280px',
+                  width: '540px',
+                  height: '360px',
                   overflow: 'hidden',
                   borderRadius: '8px',
                   opacity: glowIntensity,

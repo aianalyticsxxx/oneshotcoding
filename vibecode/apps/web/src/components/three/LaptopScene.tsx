@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
 import { Laptop } from './Laptop';
@@ -75,10 +75,27 @@ function LoadingFallback() {
 }
 
 export function LaptopScene({ children }: LaptopSceneProps) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Adjust camera for mobile - zoom out more to fit the whole laptop
+  const cameraPosition: [number, number, number] = isMobile
+    ? [0, 4.5, 10]  // Further back and higher on mobile
+    : [0, 3.5, 6];
+  const fov = isMobile ? 55 : 45;
+
   return (
     <div className="absolute inset-0 w-full h-full">
       <Canvas
-        camera={{ position: [0, 3.5, 6], fov: 45 }}
+        camera={{ position: cameraPosition, fov }}
         shadows
         gl={{
           antialias: true,

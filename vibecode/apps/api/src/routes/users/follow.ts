@@ -20,6 +20,8 @@ export const followRoutes: FastifyPluginAsync = async (fastify) => {
     const { userId: targetUserId } = request.params;
     const { userId: currentUserId } = request.user;
 
+    fastify.log.info({ targetUserId, currentUserId }, '[Follow] Attempting to follow user');
+
     if (targetUserId === currentUserId) {
       return reply.status(400).send({ error: 'Cannot follow yourself' });
     }
@@ -31,16 +33,24 @@ export const followRoutes: FastifyPluginAsync = async (fastify) => {
     );
 
     if (userCheck.rows.length === 0) {
+      fastify.log.warn({ targetUserId }, '[Follow] Target user not found');
       return reply.status(404).send({ error: 'User not found' });
     }
 
-    const success = await followService.follow(currentUserId, targetUserId);
+    try {
+      const success = await followService.follow(currentUserId, targetUserId);
 
-    if (!success) {
-      return reply.status(400).send({ error: 'Could not follow user' });
+      if (!success) {
+        fastify.log.warn({ targetUserId, currentUserId }, '[Follow] Service returned false');
+        return reply.status(400).send({ error: 'Could not follow user - service returned false' });
+      }
+    } catch (error) {
+      fastify.log.error({ error, targetUserId, currentUserId }, '[Follow] Error following user');
+      return reply.status(500).send({ error: 'Internal error following user' });
     }
 
     const followerCount = await followService.getFollowerCount(targetUserId);
+    fastify.log.info({ targetUserId, followerCount }, '[Follow] Successfully followed user');
 
     return { success: true, followerCount };
   });

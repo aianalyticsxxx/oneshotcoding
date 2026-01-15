@@ -68,7 +68,7 @@ export default function UserDetailPage() {
       return adminApi.deleteUser(userId);
     },
     onSuccess: () => {
-      router.push('/crm/users');
+      router.push('/admin-panel/users');
     },
   });
 
@@ -193,7 +193,7 @@ export default function UserDetailPage() {
       <AdminLayout>
         <div className="text-center py-12">
           <p className="text-admin-text-secondary">User not found</p>
-          <Button variant="secondary" className="mt-4" onClick={() => router.push('/crm/users')}>
+          <Button variant="secondary" className="mt-4" onClick={() => router.push('/admin-panel/users')}>
             Back to Users
           </Button>
         </div>
@@ -208,7 +208,7 @@ export default function UserDetailPage() {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push('/crm/users')}
+              onClick={() => router.push('/admin-panel/users')}
               className="p-2 text-admin-text-secondary hover:text-admin-text"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -338,7 +338,7 @@ export default function UserDetailPage() {
             keyExtractor={(report) => report.id}
             isLoading={reportsLoading}
             emptyMessage="No reports against this user"
-            onRowClick={(report) => router.push(`/crm/moderation?report=${report.id}`)}
+            onRowClick={(report) => router.push(`/admin-panel/moderation?report=${report.id}`)}
           />
         )}
 

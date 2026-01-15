@@ -117,7 +117,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-admin-text">Pending Reports</h2>
             <a
-              href="/crm/moderation"
+              href="/admin-panel/moderation"
               className="text-sm text-admin-accent hover:text-admin-accent-hover"
             >
               View all

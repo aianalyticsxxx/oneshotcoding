@@ -230,7 +230,7 @@ export default function UsersPage() {
           columns={columns}
           data={data?.users ?? []}
           keyExtractor={(user) => user.id}
-          onRowClick={(user) => router.push(`/crm/users/${user.id}`)}
+          onRowClick={(user) => router.push(`/admin-panel/users/${user.id}`)}
           isLoading={isLoading}
           emptyMessage="No users found"
         />

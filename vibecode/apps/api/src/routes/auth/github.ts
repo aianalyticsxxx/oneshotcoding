@@ -14,7 +14,7 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
   const authService = new AuthService(fastify);
 
   // GET /auth/github - Redirect to GitHub OAuth
-  fastify.get<{ Querystring: { link?: string } }>('/github', {
+  fastify.get<{ Querystring: { link?: string; redirect?: string } }>('/github', {
     config: { rateLimit: { max: 10, timeWindow: '1 minute' } },
   }, async (request, reply) => {
     const clientId = process.env.GITHUB_CLIENT_ID;
@@ -40,11 +40,15 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
       }
     }
 
+    // Get redirect URL (for admin panel or other apps)
+    const redirectUrl = request.query.redirect;
+
     // Store state and link info in cookie
     const oauthData = JSON.stringify({
       state,
       isLink: isLinkRequest,
       userId,
+      redirectUrl,
     });
 
     reply.setCookie('oauth_state', oauthData, {
@@ -84,7 +88,7 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
     reply.clearCookie('oauth_state', { path: '/' });
 
     // Parse oauth data (new JSON format, with legacy string fallback)
-    let oauthData: { state: string; isLink: boolean; userId?: string };
+    let oauthData: { state: string; isLink: boolean; userId?: string; redirectUrl?: string };
     try {
       oauthData = JSON.parse(storedState || '');
     } catch {
@@ -193,7 +197,9 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
       // Redirect to frontend with tokens in URL
       // Tokens are passed via URL because API and frontend are on different domains,
       // so cookies set here wouldn't be accessible to the frontend
-      return reply.redirect(`${frontendUrl}/auth/callback?success=true&accessToken=${accessToken}&refreshToken=${refreshToken}`);
+      // Use custom redirect URL if provided (for admin panel etc)
+      const targetUrl = oauthData.redirectUrl || frontendUrl;
+      return reply.redirect(`${targetUrl}/auth/callback?success=true&accessToken=${accessToken}&refreshToken=${refreshToken}`);
     } catch (err) {
       fastify.log.error({ err }, 'GitHub OAuth error');
       const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';

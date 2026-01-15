@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useFollow } from '@/hooks/useFollow';
 import { useAuth } from '@/hooks/useAuth';
@@ -31,11 +30,9 @@ export function FollowButton({ userId, className, size = 'sm' }: FollowButtonPro
   }
 
   return (
-    <motion.button
-      whileTap={{ scale: 0.95 }}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
+    <button
+      type="button"
+      onClick={() => {
         toggleFollow();
       }}
       disabled={isToggling}
@@ -56,6 +53,6 @@ export function FollowButton({ userId, className, size = 'sm' }: FollowButtonPro
       ) : (
         "Follow"
       )}
-    </motion.button>
+    </button>
   );
 }

@@ -23,7 +23,7 @@ async function fetchApi<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+  const token = typeof window !== 'undefined' ? localStorage.getItem('oneshotcoding_token') : null;
 
   const headers: HeadersInit = {
     ...(options.body ? { 'Content-Type': 'application/json' } : {}),

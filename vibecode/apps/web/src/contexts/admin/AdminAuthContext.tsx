@@ -27,8 +27,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUser = async () => {
-    // Use the main app's token from localStorage
-    const token = localStorage.getItem('access_token');
+    // Use the main app's token from localStorage (stored as 'oneshotcoding_token')
+    const token = localStorage.getItem('oneshotcoding_token');
 
     if (!token) {
       setUser(null);
@@ -55,7 +55,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = () => {
-    localStorage.removeItem('access_token');
+    localStorage.removeItem('oneshotcoding_token');
     setUser(null);
     window.location.href = '/';
   };

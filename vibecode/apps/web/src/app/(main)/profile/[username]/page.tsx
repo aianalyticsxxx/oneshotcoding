@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -17,8 +17,9 @@ import type { User } from '@/lib/auth';
 
 export default function ProfilePage() {
   const params = useParams();
+  const router = useRouter();
   const username = params.username as string;
-  const { user: currentUser, logout } = useAuth();
+  const { user: currentUser, logout, isLoading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -149,7 +150,7 @@ export default function ProfilePage() {
                     Sign Out
                   </Button>
                 </>
-              ) : currentUser && (
+              ) : !authLoading && currentUser && (
                 <Button
                   variant={isFollowing ? 'glass' : 'gradient'}
                   size="sm"
@@ -194,6 +195,7 @@ export default function ProfilePage() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.05 }}
                   className="aspect-square relative rounded overflow-hidden group cursor-pointer"
+                  onClick={() => router.push(`/shot/${shot.id}`)}
                 >
                   <Image
                     src={shot.imageUrl}

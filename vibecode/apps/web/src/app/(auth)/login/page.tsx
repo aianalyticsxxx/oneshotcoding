@@ -96,17 +96,6 @@ export default function LoginPage() {
         )}
       </AnimatePresence>
 
-      {/* Brand watermark */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute top-6 left-6 pointer-events-none"
-      >
-        <span className="text-terminal-text-dim/30 text-xs font-mono tracking-widest uppercase">
-          OneShotCoding v1.0
-        </span>
-      </motion.div>
     </div>
   );
 }

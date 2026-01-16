@@ -235,9 +235,11 @@ export const shotRoutes: FastifyPluginAsync = async (fastify) => {
 
       // Trigger async content moderation (don't block the response)
       if (shot.imageUrl && (resultType === 'image' || resultType === 'video')) {
+        fastify.log.info({ shotId: shot.id, imageUrl: shot.imageUrl }, 'Starting content moderation');
         setImmediate(async () => {
           try {
-            await moderationService.analyzeContent(shot.id, shot.imageUrl);
+            const result = await moderationService.analyzeContent(shot.id, shot.imageUrl);
+            fastify.log.info({ shotId: shot.id, result }, 'Content moderation completed');
           } catch (err) {
             fastify.log.error({ err, shotId: shot.id }, 'Content moderation failed');
           }

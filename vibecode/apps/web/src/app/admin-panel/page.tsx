@@ -9,18 +9,24 @@ import { adminApi, type AdminReport } from '@/lib/admin/api';
 import { formatRelativeTime, formatNumber } from '@/lib/admin/utils';
 
 export default function DashboardPage() {
-  const { data: stats, isLoading: statsLoading } = useQuery({
+  const { data: stats, isLoading: statsLoading, error: statsError } = useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: async () => {
       const response = await adminApi.getDashboardStats();
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
       return response.data;
     },
   });
 
-  const { data: reportsData, isLoading: reportsLoading } = useQuery({
+  const { data: reportsData, isLoading: reportsLoading, error: reportsError } = useQuery({
     queryKey: ['admin', 'reports', 'pending'],
     queryFn: async () => {
       const response = await adminApi.getReports({ status: 'pending', limit: 5 });
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
       return response.data;
     },
   });
@@ -82,6 +88,13 @@ export default function DashboardPage() {
             Overview of your platform&apos;s performance
           </p>
         </div>
+
+        {/* Error Display */}
+        {statsError && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-red-400">
+            Failed to load stats: {(statsError as Error).message}
+          </div>
+        )}
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

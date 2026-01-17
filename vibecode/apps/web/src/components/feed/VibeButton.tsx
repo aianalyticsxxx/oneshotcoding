@@ -59,12 +59,11 @@ export function VibeButton({
     <button
       onClick={handleSparkle}
       className={cn(
-        'relative flex items-center gap-1.5 py-1.5 px-3 rounded-md',
+        'relative flex items-center gap-1.5 py-1.5 px-2 rounded-md',
         'transition-all duration-200 font-mono text-sm',
-        'bg-terminal-bg-elevated border',
         hasSparkled
-          ? 'border-terminal-accent text-terminal-accent bg-terminal-accent/10'
-          : 'border-terminal-border text-terminal-text-secondary hover:text-terminal-text hover:border-terminal-border-bright',
+          ? 'text-terminal-accent'
+          : 'text-terminal-text-secondary hover:text-terminal-text',
         className
       )}
     >

@@ -79,9 +79,8 @@ export function ReportButton({
       <button
         onClick={handleClick}
         className={cn(
-          'py-1.5 px-3 rounded-md transition-colors',
-          'bg-terminal-bg-elevated border border-terminal-border',
-          'text-terminal-text-dim hover:text-red-400 hover:border-red-400/50',
+          'py-1.5 px-2 rounded-md transition-colors',
+          'text-terminal-text-dim hover:text-red-400',
           className
         )}
         title={`Report ${targetType}`}

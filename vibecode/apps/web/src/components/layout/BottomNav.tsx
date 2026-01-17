@@ -12,8 +12,8 @@ export interface BottomNavProps {
 
 const navItems = [
   {
-    href: '/feed',
-    label: 'feed',
+    href: '/discover',
+    label: 'discover',
     icon: (active: boolean) => (
       <svg
         className={cn('w-5 h-5', active ? 'text-terminal-accent' : 'text-terminal-text-dim')}
@@ -31,8 +31,8 @@ const navItems = [
     ),
   },
   {
-    href: '/discover',
-    label: 'discover',
+    href: '/challenges',
+    label: 'challenges',
     icon: (active: boolean) => (
       <svg
         className={cn('w-5 h-5', active ? 'text-terminal-accent' : 'text-terminal-text-dim')}
@@ -108,6 +108,9 @@ export function BottomNav({ className }: BottomNavProps) {
   const isActive = (href: string) => {
     if (href === '/profile') {
       return pathname.startsWith('/profile');
+    }
+    if (href === '/challenges') {
+      return pathname.startsWith('/challenges');
     }
     return pathname === href;
   };

@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 const navItems = [
   { href: '/feed/explore', label: './explore', icon: '◈', requiresAuth: false },
   { href: '/feed/following', label: './following', icon: '◇', requiresAuth: true },
+  { href: '/feed/discover', label: './discover', icon: '◆', requiresAuth: false },
 ] as const;
 
 export function FeedNavigation() {

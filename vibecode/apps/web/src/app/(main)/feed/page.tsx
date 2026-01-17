@@ -7,7 +7,7 @@ export default function FeedPage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/feed/explore');
+    router.replace('/feed/discover');
   }, [router]);
 
   return (

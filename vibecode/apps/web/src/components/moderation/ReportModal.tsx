@@ -102,23 +102,28 @@ export function ReportModal({ isOpen, onClose, targetType, targetId, targetName 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
           onClick={handleClose}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md"
+            className="w-full sm:max-w-md max-h-[90vh] flex flex-col"
           >
-            <GlassPanel padding="lg">
-              <div className="flex items-center justify-between mb-4">
+            <GlassPanel padding="none" className="flex flex-col max-h-[90vh] rounded-b-none sm:rounded-b-2xl">
+              {/* Fixed Header */}
+              <div className={cn(
+                'flex items-center justify-between p-4 border-b shrink-0',
+                isNeumorphic ? 'border-neumorphic-dark/20' : 'border-terminal-border'
+              )}>
                 <h2 className={cn(
-                  'text-xl font-bold',
+                  'text-lg font-bold font-mono',
                   isNeumorphic ? 'text-neumorphic-text' : 'text-terminal-text'
                 )}>
-                  Report {targetType === 'user' ? 'User' : targetType === 'shot' ? 'Post' : 'Comment'}
+                  {'>'} report_{targetType}
                 </h2>
                 <button
                   onClick={handleClose}
@@ -126,7 +131,7 @@ export function ReportModal({ isOpen, onClose, targetType, targetId, targetName 
                     'p-2 rounded-lg transition-colors',
                     isNeumorphic
                       ? 'hover:bg-neumorphic-dark/20 text-neumorphic-text'
-                      : 'hover:bg-white/10 text-white/60'
+                      : 'hover:bg-terminal-bg-elevated text-terminal-text-dim hover:text-terminal-text'
                   )}
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,100 +140,117 @@ export function ReportModal({ isOpen, onClose, targetType, targetId, targetName 
                 </button>
               </div>
 
-              <p className={cn(
-                'text-sm mb-4',
-                isNeumorphic ? 'text-neumorphic-muted' : 'text-terminal-text-dim'
-              )}>
-                Why are you reporting {getTargetLabel()}?
-              </p>
-
-              {/* Reason selection */}
-              <div className="space-y-2 mb-4">
-                {REPORT_REASONS.map((reason) => (
-                  <button
-                    key={reason.value}
-                    type="button"
-                    onClick={() => setSelectedReason(reason.value)}
-                    className={cn(
-                      'w-full text-left p-3 rounded-xl border transition-all duration-200',
-                      selectedReason === reason.value
-                        ? 'border-terminal-accent bg-terminal-accent/10'
-                        : isNeumorphic
-                          ? 'border-neumorphic-dark/20 hover:border-neumorphic-dark/40'
-                          : 'border-terminal-border hover:border-terminal-border-bright'
-                    )}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        'w-4 h-4 rounded-full border-2 flex items-center justify-center',
-                        selectedReason === reason.value
-                          ? 'border-terminal-accent'
-                          : 'border-terminal-text-dim'
-                      )}>
-                        {selectedReason === reason.value && (
-                          <div className="w-2 h-2 rounded-full bg-terminal-accent" />
-                        )}
-                      </div>
-                      <div>
-                        <p className={cn(
-                          'font-medium text-sm',
-                          isNeumorphic ? 'text-neumorphic-text' : 'text-terminal-text'
-                        )}>
-                          {reason.label}
-                        </p>
-                        <p className={cn(
-                          'text-xs',
-                          isNeumorphic ? 'text-neumorphic-muted' : 'text-terminal-text-dim'
-                        )}>
-                          {reason.description}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-
-              {/* Details textarea (always visible but required for 'other') */}
-              <div className="mb-4">
-                <label className={cn(
-                  'block text-sm font-medium mb-2',
-                  isNeumorphic ? 'text-neumorphic-text' : 'text-terminal-text-secondary'
-                )}>
-                  Additional details {selectedReason === 'other' ? '(required)' : '(optional)'}
-                </label>
-                <textarea
-                  value={details}
-                  onChange={(e) => setDetails(e.target.value)}
-                  placeholder="Provide any additional context..."
-                  maxLength={1000}
-                  rows={3}
-                  className={cn(
-                    'w-full px-4 py-3 rounded-xl transition-all duration-200 resize-none',
-                    'focus:outline-none focus:ring-2 focus:ring-terminal-accent/50',
-                    isNeumorphic
-                      ? 'bg-neumorphic-dark text-neumorphic-text shadow-neu-inset'
-                      : 'bg-white/10 text-white border border-white/20 placeholder:text-white/40'
-                  )}
-                />
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 <p className={cn(
-                  'text-xs mt-1',
+                  'text-sm font-mono',
                   isNeumorphic ? 'text-neumorphic-muted' : 'text-terminal-text-dim'
                 )}>
-                  {details.length}/1000 characters
+                  <span className="text-terminal-accent">$</span> why are you reporting {getTargetLabel()}?
                 </p>
+
+                {/* Reason selection - more compact */}
+                <div className="space-y-2">
+                  {REPORT_REASONS.map((reason) => (
+                    <button
+                      key={reason.value}
+                      type="button"
+                      onClick={() => setSelectedReason(reason.value)}
+                      className={cn(
+                        'w-full text-left p-3 rounded-lg border transition-all duration-200',
+                        selectedReason === reason.value
+                          ? isNeumorphic
+                            ? 'border-neumorphic-accent bg-neumorphic-accent/10'
+                            : 'border-terminal-accent bg-terminal-accent/10'
+                          : isNeumorphic
+                            ? 'border-neumorphic-dark/20 hover:border-neumorphic-dark/40 bg-neumorphic-dark/10'
+                            : 'border-terminal-border hover:border-terminal-border-bright bg-terminal-bg-elevated/50'
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          'w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0',
+                          selectedReason === reason.value
+                            ? isNeumorphic ? 'border-neumorphic-accent' : 'border-terminal-accent'
+                            : isNeumorphic ? 'border-neumorphic-muted' : 'border-terminal-text-dim'
+                        )}>
+                          {selectedReason === reason.value && (
+                            <div className={cn(
+                              'w-2 h-2 rounded-full',
+                              isNeumorphic ? 'bg-neumorphic-accent' : 'bg-terminal-accent'
+                            )} />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className={cn(
+                            'font-medium text-sm font-mono',
+                            isNeumorphic ? 'text-neumorphic-text' : 'text-terminal-text'
+                          )}>
+                            {reason.label}
+                          </p>
+                          <p className={cn(
+                            'text-xs truncate',
+                            isNeumorphic ? 'text-neumorphic-muted' : 'text-terminal-text-dim'
+                          )}>
+                            {reason.description}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Details textarea */}
+                <div>
+                  <label className={cn(
+                    'block text-xs font-mono mb-2',
+                    isNeumorphic ? 'text-neumorphic-muted' : 'text-terminal-text-dim'
+                  )}>
+                    <span className="text-terminal-accent">#</span> details {selectedReason === 'other' ? '(required)' : '(optional)'}
+                  </label>
+                  <textarea
+                    value={details}
+                    onChange={(e) => setDetails(e.target.value)}
+                    placeholder="Additional context..."
+                    maxLength={1000}
+                    rows={2}
+                    className={cn(
+                      'w-full px-3 py-2 rounded-lg transition-all duration-200 resize-none text-sm font-mono',
+                      'focus:outline-none focus:ring-2',
+                      isNeumorphic
+                        ? 'bg-neumorphic-dark text-neumorphic-text shadow-neu-inset focus:ring-neumorphic-accent/50 placeholder:text-neumorphic-muted'
+                        : 'bg-terminal-bg-elevated text-terminal-text border border-terminal-border focus:ring-terminal-accent/50 focus:border-terminal-accent placeholder:text-terminal-text-dim'
+                    )}
+                  />
+                  <p className={cn(
+                    'text-xs mt-1 font-mono',
+                    isNeumorphic ? 'text-neumorphic-muted' : 'text-terminal-text-dim'
+                  )}>
+                    {details.length}/1000
+                  </p>
+                </div>
+
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={cn(
+                      'p-3 rounded-lg text-sm font-mono',
+                      isNeumorphic
+                        ? 'bg-red-500/10 border border-red-500/20 text-red-400'
+                        : 'bg-red-500/20 border border-red-500/30 text-red-300'
+                    )}
+                  >
+                    <span className="text-red-400">error:</span> {error}
+                  </motion.div>
+                )}
               </div>
 
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-300 text-sm mb-4"
-                >
-                  {error}
-                </motion.div>
-              )}
-
-              <div className="flex gap-3">
+              {/* Fixed Footer */}
+              <div className={cn(
+                'flex gap-3 p-4 border-t shrink-0',
+                isNeumorphic ? 'border-neumorphic-dark/20' : 'border-terminal-border'
+              )}>
                 <Button
                   type="button"
                   variant="ghost"
@@ -246,7 +268,7 @@ export function ReportModal({ isOpen, onClose, targetType, targetId, targetName 
                   isLoading={isSubmitting}
                   className="flex-1"
                 >
-                  Submit Report
+                  Submit
                 </Button>
               </div>
             </GlassPanel>

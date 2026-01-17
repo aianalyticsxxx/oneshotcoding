@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useChallenges } from '@/hooks/useChallenges';
+import { DashboardLayout, StatsPanel, TrendingPanel, ActivityFeed } from '@/components/dashboard';
+import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import type { Challenge } from '@/lib/api';
 
@@ -96,107 +98,110 @@ function ChallengeCard({ challenge }: { challenge: Challenge }) {
 }
 
 export default function ChallengesPage() {
+  const { user } = useAuth();
   const [filter, setFilter] = useState<FilterTab>('active');
   const { challenges, isLoading } = useChallenges(filter);
 
+  const sidebar = (
+    <>
+      <StatsPanel username={user?.username} />
+      <TrendingPanel />
+      <ActivityFeed mode="global" />
+    </>
+  );
+
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {/* Terminal Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-1"
-      >
-        <div className="flex items-center gap-2 font-mono text-terminal-text-dim text-xs">
-          <span className="text-terminal-accent">$</span>
-          <span>cd ~/challenges</span>
-        </div>
-        <div>
-          <h1 className="text-xl font-semibold text-terminal-text font-mono">
-            <span className="text-terminal-accent">&gt;</span> Challenges
-          </h1>
-          <p className="text-sm text-terminal-text-secondary font-mono">
-            // compete with the community in weekly challenges
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Filter Tabs */}
-      <div className="flex rounded-lg p-1 bg-terminal-bg-elevated border border-terminal-border w-fit">
-        {(['active', 'upcoming', 'completed'] as FilterTab[]).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setFilter(tab)}
-            className={cn(
-              "px-4 py-1.5 text-xs font-mono rounded-md transition-colors",
-              filter === tab
-                ? "bg-terminal-accent/20 text-terminal-accent"
-                : "text-terminal-text-dim hover:text-terminal-text"
-            )}
-          >
-            ./{tab}
-          </button>
-        ))}
-      </div>
-
-      {/* Challenges List */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.15 }}
-      >
-        {isLoading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div
-                key={i}
-                className="animate-pulse bg-terminal-bg-elevated border border-terminal-border rounded-lg p-4"
-              >
-                <div className="h-5 w-48 bg-terminal-border rounded mb-3" />
-                <div className="h-4 w-full bg-terminal-border rounded mb-2" />
-                <div className="h-3 w-32 bg-terminal-border rounded" />
-              </div>
-            ))}
-          </div>
-        ) : challenges.length === 0 ? (
-          <div className="text-center py-12 bg-terminal-bg-elevated border border-terminal-border rounded-lg">
-            <div className="text-4xl mb-4 font-mono text-terminal-accent">{'{ }'}</div>
-            <h2 className="text-lg font-mono text-terminal-text mb-2">
-              No {filter} challenges
-            </h2>
-            <p className="text-sm text-terminal-text-dim font-mono">
-              {filter === 'active'
-                ? '// check back soon for new challenges'
-                : filter === 'upcoming'
-                ? '// no upcoming challenges scheduled'
-                : '// no completed challenges yet'}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {challenges.map((challenge, index) => (
-              <motion.div
-                key={challenge.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <ChallengeCard challenge={challenge} />
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </motion.div>
-
-      {/* Back link */}
-      <div className="text-center pt-4">
-        <Link
-          href="/feed"
-          className="text-sm font-mono text-terminal-text-dim hover:text-terminal-accent transition-colors"
+    <DashboardLayout sidebar={sidebar}>
+      <div className="space-y-5">
+        {/* Terminal Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-1"
         >
-          <span className="text-terminal-accent">$</span> cd ../feed
-        </Link>
+          <div className="flex items-center gap-2 font-mono text-terminal-text-dim text-xs">
+            <span className="text-terminal-accent">$</span>
+            <span>cd ~/challenges</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-semibold text-terminal-text font-mono">
+                <span className="text-terminal-accent">&gt;</span> Challenges
+              </h1>
+              <p className="text-sm text-terminal-text-secondary font-mono">
+                // compete with the community in weekly challenges
+              </p>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex rounded-lg p-1 bg-terminal-bg-elevated border border-terminal-border">
+              {(['active', 'upcoming', 'completed'] as FilterTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setFilter(tab)}
+                  className={cn(
+                    "px-3 py-1.5 text-xs font-mono rounded-md transition-colors",
+                    filter === tab
+                      ? "bg-terminal-accent/20 text-terminal-accent"
+                      : "text-terminal-text-dim hover:text-terminal-text"
+                  )}
+                >
+                  ./{tab}
+                </button>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Challenges List */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.15 }}
+        >
+          {isLoading ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="animate-pulse bg-terminal-bg-elevated border border-terminal-border rounded-lg p-4"
+                >
+                  <div className="h-5 w-48 bg-terminal-border rounded mb-3" />
+                  <div className="h-4 w-full bg-terminal-border rounded mb-2" />
+                  <div className="h-3 w-32 bg-terminal-border rounded" />
+                </div>
+              ))}
+            </div>
+          ) : challenges.length === 0 ? (
+            <div className="text-center py-12 bg-terminal-bg-elevated border border-terminal-border rounded-lg">
+              <div className="text-4xl mb-4 font-mono text-terminal-accent">{'{ }'}</div>
+              <h2 className="text-lg font-mono text-terminal-text mb-2">
+                No {filter} challenges
+              </h2>
+              <p className="text-sm text-terminal-text-dim font-mono">
+                {filter === 'active'
+                  ? '// check back soon for new challenges'
+                  : filter === 'upcoming'
+                  ? '// no upcoming challenges scheduled'
+                  : '// no completed challenges yet'}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {challenges.map((challenge, index) => (
+                <motion.div
+                  key={challenge.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <ChallengeCard challenge={challenge} />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

@@ -4,41 +4,36 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useChallenges } from '@/hooks/useChallenges';
-import { GlassPanel } from '@/components/ui/GlassPanel';
-import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import type { Challenge } from '@/lib/api';
 
 type FilterTab = 'active' | 'upcoming' | 'completed';
 
 function ChallengeCard({ challenge }: { challenge: Challenge }) {
-  const { theme } = useTheme();
-  const isNeumorphic = theme === 'neumorphic';
-
   const getStatusBadge = () => {
     switch (challenge.status) {
       case 'active':
         return (
-          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
-            Active
+          <span className="px-2 py-0.5 rounded text-xs font-mono bg-green-500/20 text-green-400 border border-green-500/30">
+            [ACTIVE]
           </span>
         );
       case 'voting':
         return (
-          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400">
-            Voting
+          <span className="px-2 py-0.5 rounded text-xs font-mono bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+            [VOTING]
           </span>
         );
       case 'upcoming':
         return (
-          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
-            Upcoming
+          <span className="px-2 py-0.5 rounded text-xs font-mono bg-blue-500/20 text-blue-400 border border-blue-500/30">
+            [UPCOMING]
           </span>
         );
       case 'completed':
         return (
-          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-500/20 text-gray-400">
-            Completed
+          <span className="px-2 py-0.5 rounded text-xs font-mono bg-terminal-text-dim/20 text-terminal-text-dim border border-terminal-border">
+            [COMPLETED]
           </span>
         );
     }
@@ -53,23 +48,20 @@ function ChallengeCard({ challenge }: { challenge: Challenge }) {
 
   return (
     <Link href={`/challenges/${challenge.id}`}>
-      <GlassPanel className="hover:scale-[1.02] transition-transform cursor-pointer">
+      <div className="bg-terminal-bg-elevated border border-terminal-border rounded-lg p-4 hover:border-terminal-accent/50 transition-colors cursor-pointer group">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             {challenge.isOfficial && (
-              <span className="text-yellow-400" title="Official Challenge">
-                ⭐
+              <span className="text-terminal-accent font-mono text-sm" title="Official Challenge">
+                [*]
               </span>
             )}
             {challenge.isSponsored && (
-              <span className="text-purple-400" title="Sponsored">
-                💎
+              <span className="text-purple-400 font-mono text-sm" title="Sponsored">
+                [$]
               </span>
             )}
-            <h3 className={cn(
-              "font-semibold text-lg",
-              isNeumorphic ? "text-neumorphic-text" : "text-white"
-            )}>
+            <h3 className="font-mono font-semibold text-terminal-text group-hover:text-terminal-accent transition-colors">
               {challenge.title}
             </h3>
           </div>
@@ -77,151 +69,132 @@ function ChallengeCard({ challenge }: { challenge: Challenge }) {
         </div>
 
         {challenge.description && (
-          <p className={cn(
-            "text-sm mb-3 line-clamp-2",
-            isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/60"
-          )}>
-            {challenge.description}
+          <p className="text-sm font-mono text-terminal-text-secondary mb-3 line-clamp-2">
+            // {challenge.description}
           </p>
         )}
 
-        <div className={cn(
-          "flex items-center gap-4 text-sm",
-          isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/50"
-        )}>
+        <div className="flex items-center gap-4 text-sm font-mono text-terminal-text-dim">
           <span>
-            {formatDate(challenge.startsAt)} - {formatDate(challenge.endsAt)}
+            {formatDate(challenge.startsAt)} → {formatDate(challenge.endsAt)}
           </span>
           {challenge.prizeDescription && (
-            <span className="text-yellow-400/80">
-              🏆 {challenge.prizeDescription}
+            <span className="text-terminal-accent">
+              prize: {challenge.prizeDescription}
             </span>
           )}
         </div>
 
         {challenge.sponsorName && (
-          <p className={cn(
-            "text-xs mt-2",
-            isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/40"
-          )}>
-            Sponsored by {challenge.sponsorName}
+          <p className="text-xs font-mono mt-2 text-terminal-text-dim">
+            // sponsored by {challenge.sponsorName}
           </p>
         )}
-      </GlassPanel>
+      </div>
     </Link>
   );
 }
 
 export default function ChallengesPage() {
-  const { theme } = useTheme();
-  const isNeumorphic = theme === 'neumorphic';
   const [filter, setFilter] = useState<FilterTab>('active');
-
   const { challenges, isLoading } = useChallenges(filter);
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
+      {/* Terminal Header */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center"
+        className="space-y-1"
       >
-        <h1 className={cn(
-          "text-2xl font-bold mb-2",
-          isNeumorphic ? "text-neumorphic-text" : "text-white"
-        )}>Challenges</h1>
-        <p className={isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/60"}>
-          Compete with the community in weekly challenges
-        </p>
+        <div className="flex items-center gap-2 font-mono text-terminal-text-dim text-xs">
+          <span className="text-terminal-accent">$</span>
+          <span>cd ~/challenges</span>
+        </div>
+        <div>
+          <h1 className="text-xl font-semibold text-terminal-text font-mono">
+            <span className="text-terminal-accent">&gt;</span> Challenges
+          </h1>
+          <p className="text-sm text-terminal-text-secondary font-mono">
+            // compete with the community in weekly challenges
+          </p>
+        </div>
       </motion.div>
 
       {/* Filter Tabs */}
-      <div className="flex justify-center">
-        <div className={cn(
-          "inline-flex rounded-full p-1",
-          isNeumorphic
-            ? "bg-neumorphic-bg shadow-neumorphic-inset"
-            : "bg-glass-white backdrop-blur-glass border border-glass-border"
-        )}>
-          {(['active', 'upcoming', 'completed'] as FilterTab[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilter(tab)}
-              className={cn(
-                "px-4 py-1.5 rounded-full text-sm font-medium transition-all capitalize",
-                filter === tab
-                  ? isNeumorphic
-                    ? "bg-neumorphic-bg shadow-neumorphic-sm text-neumorphic-text"
-                    : "bg-vibe-purple text-white"
-                  : isNeumorphic
-                    ? "text-neumorphic-text-secondary hover:text-neumorphic-text"
-                    : "text-white/60 hover:text-white"
-              )}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+      <div className="flex rounded-lg p-1 bg-terminal-bg-elevated border border-terminal-border w-fit">
+        {(['active', 'upcoming', 'completed'] as FilterTab[]).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setFilter(tab)}
+            className={cn(
+              "px-4 py-1.5 text-xs font-mono rounded-md transition-colors",
+              filter === tab
+                ? "bg-terminal-accent/20 text-terminal-accent"
+                : "text-terminal-text-dim hover:text-terminal-text"
+            )}
+          >
+            ./{tab}
+          </button>
+        ))}
       </div>
 
       {/* Challenges List */}
-      {isLoading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <GlassPanel key={i} className="animate-pulse">
-              <div className="h-6 w-48 bg-white/10 rounded mb-3" />
-              <div className="h-4 w-full bg-white/10 rounded mb-2" />
-              <div className="h-4 w-32 bg-white/10 rounded" />
-            </GlassPanel>
-          ))}
-        </div>
-      ) : challenges.length === 0 ? (
-        <GlassPanel className="text-center" padding="lg">
-          <div className="text-5xl mb-4">🏆</div>
-          <h2 className={cn(
-            "text-xl font-semibold mb-2",
-            isNeumorphic ? "text-neumorphic-text" : "text-white"
-          )}>
-            No {filter} challenges
-          </h2>
-          <p className={isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/60"}>
-            {filter === 'active'
-              ? 'Check back soon for new challenges!'
-              : filter === 'upcoming'
-              ? 'No upcoming challenges scheduled yet.'
-              : 'No completed challenges yet.'}
-          </p>
-        </GlassPanel>
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-4"
-        >
-          {challenges.map((challenge, index) => (
-            <motion.div
-              key={challenge.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <ChallengeCard challenge={challenge} />
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.15 }}
+      >
+        {isLoading ? (
+          <div className="space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div
+                key={i}
+                className="animate-pulse bg-terminal-bg-elevated border border-terminal-border rounded-lg p-4"
+              >
+                <div className="h-5 w-48 bg-terminal-border rounded mb-3" />
+                <div className="h-4 w-full bg-terminal-border rounded mb-2" />
+                <div className="h-3 w-32 bg-terminal-border rounded" />
+              </div>
+            ))}
+          </div>
+        ) : challenges.length === 0 ? (
+          <div className="text-center py-12 bg-terminal-bg-elevated border border-terminal-border rounded-lg">
+            <div className="text-4xl mb-4 font-mono text-terminal-accent">{'{ }'}</div>
+            <h2 className="text-lg font-mono text-terminal-text mb-2">
+              No {filter} challenges
+            </h2>
+            <p className="text-sm text-terminal-text-dim font-mono">
+              {filter === 'active'
+                ? '// check back soon for new challenges'
+                : filter === 'upcoming'
+                ? '// no upcoming challenges scheduled'
+                : '// no completed challenges yet'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {challenges.map((challenge, index) => (
+              <motion.div
+                key={challenge.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+              >
+                <ChallengeCard challenge={challenge} />
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
 
-      {/* Back to Feed link */}
-      <div className="text-center">
+      {/* Back link */}
+      <div className="text-center pt-4">
         <Link
           href="/feed"
-          className={cn(
-            "text-sm hover:underline",
-            isNeumorphic ? "text-neumorphic-text-secondary" : "text-white/50"
-          )}
+          className="text-sm font-mono text-terminal-text-dim hover:text-terminal-accent transition-colors"
         >
-          ← Back to Feed
+          <span className="text-terminal-accent">$</span> cd ../feed
         </Link>
       </div>
     </div>

@@ -227,7 +227,7 @@ export class AuthService {
    */
   generateTokens(payload: TokenPayload): { accessToken: string; refreshToken: string } {
     const accessExpiry = process.env.JWT_ACCESS_EXPIRY || '15m';
-    const refreshExpiry = process.env.JWT_REFRESH_EXPIRY || '7d';
+    const refreshExpiry = process.env.JWT_REFRESH_EXPIRY || '1y';
 
     const accessToken = this.fastify.jwt.sign(
       { ...payload, type: 'access' },
@@ -247,7 +247,7 @@ export class AuthService {
    */
   async storeRefreshToken(userId: string, token: string): Promise<void> {
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days from now
+    expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year from now
 
     await this.fastify.db.query(
       `INSERT INTO refresh_tokens (user_id, token, expires_at)
@@ -288,7 +288,7 @@ export class AuthService {
 
       // Store new token
       const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 7);
+      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
 
       await client.query(
         `INSERT INTO refresh_tokens (user_id, token, expires_at)

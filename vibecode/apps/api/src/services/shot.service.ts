@@ -66,9 +66,10 @@ export class ShotService {
     const params: (string | number)[] = [];
     let paramIndex = 1;
 
-    let cursorCondition = '';
+    // Base condition: exclude hidden/rejected content
+    let cursorCondition = 'WHERE (s.is_hidden = FALSE OR s.is_hidden IS NULL) AND (s.moderation_status != \'rejected\' OR s.moderation_status IS NULL)';
     if (cursor) {
-      cursorCondition = `WHERE s.created_at < $${paramIndex}`;
+      cursorCondition += ` AND s.created_at < $${paramIndex}`;
       params.push(cursor);
       paramIndex++;
     }
@@ -210,12 +211,13 @@ export class ShotService {
     const params: (string | number)[] = [];
     let paramIndex = 1;
 
-    let cursorCondition = '';
+    // Base condition: exclude hidden/rejected content
+    let whereClause = 'WHERE (s.is_hidden = FALSE OR s.is_hidden IS NULL) AND (s.moderation_status != \'rejected\' OR s.moderation_status IS NULL)';
     if (cursor) {
       if (sort === 'recent') {
-        cursorCondition = `WHERE s.created_at < $${paramIndex}`;
+        whereClause += ` AND s.created_at < $${paramIndex}`;
       } else {
-        cursorCondition = `WHERE (COUNT(r.id), s.created_at) < ($${paramIndex}::int, $${paramIndex + 1}::timestamptz)`;
+        whereClause += ` AND (COUNT(r.id), s.created_at) < ($${paramIndex}::int, $${paramIndex + 1}::timestamptz)`;
         paramIndex++;
       }
       params.push(cursor);
@@ -257,7 +259,7 @@ export class ShotService {
       FROM shots s
       JOIN users u ON s.user_id = u.id
       LEFT JOIN reactions r ON r.shot_id = s.id
-      ${cursor && sort === 'recent' ? cursorCondition : ''}
+      ${whereClause}
       GROUP BY s.id, u.id
       ORDER BY ${orderBy}
       LIMIT $${limitParam}
@@ -316,6 +318,7 @@ export class ShotService {
     const followingParam = paramIndex;
     paramIndex++;
 
+    // Cursor condition for pagination
     let cursorCondition = '';
     if (cursor) {
       cursorCondition = `AND s.created_at < $${paramIndex}`;
@@ -352,6 +355,8 @@ export class ShotService {
       JOIN users u ON s.user_id = u.id
       LEFT JOIN reactions r ON r.shot_id = s.id
       WHERE s.user_id = ANY($${followingParam}::uuid[])
+        AND (s.is_hidden = FALSE OR s.is_hidden IS NULL)
+        AND (s.moderation_status != 'rejected' OR s.moderation_status IS NULL)
       ${cursorCondition}
       GROUP BY s.id, u.id
       ORDER BY s.created_at DESC
@@ -422,6 +427,8 @@ export class ShotService {
       JOIN users u ON s.user_id = u.id
       LEFT JOIN reactions r ON r.shot_id = s.id
       WHERE s.challenge_id = $1
+        AND (s.is_hidden = FALSE OR s.is_hidden IS NULL)
+        AND (s.moderation_status != 'rejected' OR s.moderation_status IS NULL)
       ${cursorCondition}
       GROUP BY s.id, u.id
       ORDER BY s.created_at DESC
@@ -492,6 +499,8 @@ export class ShotService {
       JOIN users u ON s.user_id = u.id
       LEFT JOIN reactions r ON r.shot_id = s.id
       WHERE s.user_id = $1
+        AND (s.is_hidden = FALSE OR s.is_hidden IS NULL)
+        AND (s.moderation_status != 'rejected' OR s.moderation_status IS NULL)
       ${cursorCondition}
       GROUP BY s.id, u.id
       ORDER BY s.created_at DESC

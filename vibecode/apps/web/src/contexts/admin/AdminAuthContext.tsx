@@ -9,9 +9,6 @@ import {
 } from 'react';
 import { adminApi, type AdminUser } from '@/lib/admin/api';
 
-// Only this username can access the admin panel
-const ALLOWED_ADMIN_USERNAME = 'aianalyticsxxx';
-
 interface AdminAuthContextType {
   user: AdminUser | null;
   isLoading: boolean;
@@ -40,8 +37,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     if (error || !data) {
       setUser(null);
     } else {
-      // Only allow the specific admin username
-      if (data.user.username === ALLOWED_ADMIN_USERNAME) {
+      // Only allow users with isAdmin flag
+      if (data.user.isAdmin) {
         setUser(data.user);
       } else {
         setUser(null);
@@ -65,7 +62,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isLoading,
-        isAdmin: user?.username === ALLOWED_ADMIN_USERNAME,
+        isAdmin: user?.isAdmin === true,
         logout,
         refetch: fetchUser,
       }}

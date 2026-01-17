@@ -13,6 +13,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 // CaptureGate intentionally disabled - profiles viewable without posting
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
+import { ReportButton } from '@/components/moderation/ReportButton';
 import type { User } from '@/lib/auth';
 
 export default function ProfilePage() {
@@ -151,21 +152,29 @@ export default function ProfilePage() {
                   </Button>
                 </>
               ) : !authLoading && currentUser && (
-                <Button
-                  variant={isFollowing ? 'glass' : 'gradient'}
-                  size="sm"
-                  onClick={toggleFollow}
-                  disabled={isToggling}
-                  className={isFollowing ? 'hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50' : ''}
-                >
-                  {isToggling ? (
-                    <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : isFollowing ? (
-                    'Following'
-                  ) : (
-                    'Follow'
-                  )}
-                </Button>
+                <>
+                  <Button
+                    variant={isFollowing ? 'glass' : 'gradient'}
+                    size="sm"
+                    onClick={toggleFollow}
+                    disabled={isToggling}
+                    className={isFollowing ? 'hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/50' : ''}
+                  >
+                    {isToggling ? (
+                      <span className="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : isFollowing ? (
+                      'Following'
+                    ) : (
+                      'Follow'
+                    )}
+                  </Button>
+                  <ReportButton
+                    targetType="user"
+                    targetId={user.id}
+                    targetName={`@${user.username}`}
+                    variant="text"
+                  />
+                </>
               )}
             </div>
           </GlassPanel>

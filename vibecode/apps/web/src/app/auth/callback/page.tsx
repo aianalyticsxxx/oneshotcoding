@@ -39,7 +39,7 @@ function CallbackContent() {
           const isSecure = window.location.protocol === 'https:';
           document.cookie = `access_token=${accessToken}; path=/; max-age=${15 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
           if (refreshToken) {
-            document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
+            document.cookie = `refresh_token=${refreshToken}; path=/; max-age=${365 * 24 * 60 * 60}; samesite=lax${isSecure ? '; secure' : ''}`;
           }
 
           // Clean up URL (remove tokens from browser history)

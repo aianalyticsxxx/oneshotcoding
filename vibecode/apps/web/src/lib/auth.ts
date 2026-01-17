@@ -8,6 +8,7 @@ export interface User {
   avatarUrl: string | null;
   bio: string | null;
   createdAt: string;
+  isAdmin?: boolean;
 }
 
 /**

@@ -261,7 +261,7 @@ export const githubRoutes: FastifyPluginAsync = async (fastify) => {
         httpOnly: true,
         secure: isProduction,
         sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60,
+        maxAge: 365 * 24 * 60 * 60,
       });
 
       return {

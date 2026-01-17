@@ -35,21 +35,33 @@ export function Header({ className }: HeaderProps) {
         {/* User Avatar */}
         <div className="flex items-center gap-3">
           {user && (
-            <Link
-              href={`/profile/${user.username}`}
-              className="flex items-center gap-2 py-1.5 px-3 rounded-md
-                         bg-terminal-bg-elevated border border-terminal-border
-                         hover:border-terminal-border-bright transition-colors"
-            >
-              <Avatar
-                src={user.avatarUrl}
-                alt={user.displayName}
-                size="sm"
-              />
-              <span className="font-mono text-sm text-terminal-text-secondary hidden sm:inline">
-                @{user.username}
-              </span>
-            </Link>
+            <>
+              {user.isAdmin && (
+                <Link
+                  href="/admin-panel"
+                  className="py-1.5 px-3 rounded-md font-mono text-sm
+                             bg-terminal-bg-elevated border border-terminal-border
+                             text-terminal-accent hover:border-terminal-accent/50 transition-colors"
+                >
+                  Admin
+                </Link>
+              )}
+              <Link
+                href={`/profile/${user.username}`}
+                className="flex items-center gap-2 py-1.5 px-3 rounded-md
+                           bg-terminal-bg-elevated border border-terminal-border
+                           hover:border-terminal-border-bright transition-colors"
+              >
+                <Avatar
+                  src={user.avatarUrl}
+                  alt={user.displayName}
+                  size="sm"
+                />
+                <span className="font-mono text-sm text-terminal-text-secondary hidden sm:inline">
+                  @{user.username}
+                </span>
+              </Link>
+            </>
           )}
         </div>
       </div>

@@ -2,7 +2,7 @@
   "name": "oneshotcoding",
   "version": "1.0.0",
   "private": true,
-  "description": "OneShotCoding - A social network for developers to share their daily builds",
+  "description": "oneshotcoding - A social network for developers to share their daily builds",
   "keywords": [
     "social-network",
     "developers",
@@ -15,7 +15,7 @@
     "url": "https://github.com/oneshotcoding/oneshotcoding.git"
   },
   "license": "MIT",
-  "author": "OneShotCoding Team",
+  "author": "oneshotcoding Team",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=20"

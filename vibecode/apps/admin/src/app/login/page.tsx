@@ -59,7 +59,7 @@ export default function LoginPage() {
             onClick={handleGoToMainApp}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-admin-accent text-white rounded-lg font-medium hover:bg-admin-accent-hover transition-colors"
           >
-            Go to OneShotCoding
+            Go to oneshotcoding
           </button>
         </div>
       </div>

@@ -29,7 +29,7 @@ export function Header({ className }: HeaderProps) {
             <circle cx="50" cy="50" r="22" stroke="currentColor" strokeWidth="8" />
             <circle cx="50" cy="50" r="8" fill="currentColor" />
           </svg>
-          <span className="font-semibold text-lg text-terminal-text">OneShotCoding</span>
+          <span className="font-semibold text-lg text-terminal-text">oneshotcoding</span>
         </Link>
 
         {/* User Avatar */}

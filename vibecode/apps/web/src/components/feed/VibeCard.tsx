@@ -423,7 +423,7 @@ export function VibeCard({ vibe, className }: VibeCardProps) {
           {/* Share dropdown */}
           <ShareDropdown
             url={`${typeof window !== 'undefined' ? window.location.origin : ''}/shot/${vibe.id}`}
-            title={`Check out @${vibe.user.username}'s build on OneShotCoding!`}
+            title={`Check out @${vibe.user.username}'s build on oneshotcoding!`}
           />
 
           {/* Report button */}

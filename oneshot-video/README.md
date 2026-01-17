@@ -1,4 +1,4 @@
-# OneShotCoding Launch Video
+# oneshotcoding Launch Video
 
 20-second animated promo video for Twitter/X launch.
 

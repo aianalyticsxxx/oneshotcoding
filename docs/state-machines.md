@@ -1,4 +1,4 @@
-# OneShotCoding - State Machine Diagrams & Feature Analysis
+# oneshotcoding - State Machine Diagrams & Feature Analysis
 
 ## Current System (VibeCode) - TO BE REMOVED
 
@@ -58,7 +58,7 @@
 
 ---
 
-## New System (OneShotCoding) - TO BE IMPLEMENTED
+## New System (oneshotcoding) - TO BE IMPLEMENTED
 
 ### 3. Shot (Post) State Machine
 
@@ -190,7 +190,7 @@
     │   Everyone   │   Following   │
     └──────────────┴───────────────┘
 
-    New (OneShotCoding):
+    New (oneshotcoding):
     ┌──────────────┬───────────────┬────────────────┐
     │   Explore    │   Following   │   Challenges   │
     │  (all shots) │ (your people) │ (competitions) │

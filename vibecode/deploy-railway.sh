@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# OneShotCoding Railway Deployment Script
+# oneshotcoding Railway Deployment Script
 # =======================================
 
 set -e
 
-echo "🚀 OneShotCoding Railway Deployment"
+echo "🚀 oneshotcoding Railway Deployment"
 echo "===================================="
 echo ""
 

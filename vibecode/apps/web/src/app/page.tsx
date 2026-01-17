@@ -84,7 +84,7 @@ export default function HomePage() {
                 </svg>
               </motion.div>
               <span className="text-xl font-semibold text-terminal-text">
-                OneShotCoding
+                oneshotcoding
               </span>
             </div>
 

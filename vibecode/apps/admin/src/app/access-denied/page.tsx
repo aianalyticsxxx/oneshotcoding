@@ -38,7 +38,7 @@ export default function AccessDeniedPage() {
               onClick={() => window.location.href = 'https://oneshotcoding.io'}
               className="w-full px-4 py-2.5 bg-admin-accent text-white rounded-lg font-medium hover:bg-admin-accent-hover transition-colors"
             >
-              Go to OneShotCoding
+              Go to oneshotcoding
             </button>
           </div>
         </div>

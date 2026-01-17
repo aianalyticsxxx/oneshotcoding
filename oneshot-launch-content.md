@@ -1,10 +1,10 @@
-# OneShotCoding Launch Content
+# oneshotcoding Launch Content
 
 ## Main Launch Thread
 
 **Tweet 1 (Hook)**
 ```
-Introducing OneShotCoding
+Introducing oneshotcoding
 
 The platform where everything is built with exactly ONE prompt.
 
@@ -377,7 +377,7 @@ Prepare yourselves.
 
 ## Hashtags & Mentions
 
-Primary: #OneShotCoding #OneShot #BuildInOneShot
+Primary: #oneshotcoding #OneShot #BuildInOneShot
 Secondary: #vibecoding #AIcoding #promptengineering
 
 Tag on tool-specific posts: @cursor_ai @AnthropicAI @OpenAI

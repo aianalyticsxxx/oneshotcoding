@@ -19,8 +19,8 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://oneshotcoding.io'),
   title: {
-    default: 'OneShotCoding - Daily Coding Challenges with Rewards',
-    template: '%s | OneShotCoding',
+    default: 'oneshotcoding - Daily Coding Challenges with Rewards',
+    template: '%s | oneshotcoding',
   },
   description:
     'A platform for the coding community to learn and teach others through daily challenges with rewards. One prompt. One response. Ship it.',
@@ -36,33 +36,33 @@ export const metadata: Metadata = {
     'ai prompts',
     'daily challenges',
   ],
-  authors: [{ name: 'OneShotCoding Team' }],
-  creator: 'OneShotCoding',
-  publisher: 'OneShotCoding',
+  authors: [{ name: 'oneshotcoding Team' }],
+  creator: 'oneshotcoding',
+  publisher: 'oneshotcoding',
   openGraph: {
-    title: 'OneShotCoding - Daily Coding Challenges with Rewards',
+    title: 'oneshotcoding - Daily Coding Challenges with Rewards',
     description:
       'A platform for the coding community to learn and teach others through daily challenges with rewards. One prompt. One response. Ship it.',
     url: 'https://oneshotcoding.io',
-    siteName: 'OneShotCoding',
+    siteName: 'oneshotcoding',
     locale: 'en_US',
     type: 'website',
     images: [
       {
-        url: '/og-image.png',
+        url: '/og-image.png?v=2',
         width: 1200,
         height: 630,
-        alt: 'OneShotCoding - Daily Coding Challenges',
+        alt: 'oneshotcoding - Daily Coding Challenges',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'OneShotCoding - Daily Coding Challenges with Rewards',
+    title: 'oneshotcoding - Daily Coding Challenges with Rewards',
     description:
       'A platform for the coding community to learn and teach others through daily challenges with rewards.',
     creator: '@oneshotcoding',
-    images: ['/og-image.png'],
+    images: ['/og-image.png?v=2'],
   },
   robots: {
     index: true,

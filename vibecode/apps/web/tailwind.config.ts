@@ -31,7 +31,7 @@ const config: Config = {
           info: '#3B82F6',
           warning: '#F59E0B',
         },
-        // OneShotCoding terminal palette
+        // oneshotcoding terminal palette
         terminal: {
           bg: '#0D0D0D',
           'bg-elevated': '#171717',

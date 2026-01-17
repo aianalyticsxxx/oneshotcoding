@@ -1,4 +1,4 @@
--- OneShotCoding Rebrand Migration
+-- oneshotcoding Rebrand Migration
 -- Transform from BeReal-style "vibes" to prompt-focused "shots"
 
 -- ============================================================================

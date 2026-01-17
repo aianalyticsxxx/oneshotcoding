@@ -9,7 +9,7 @@ export default function PrivacyPolicyPage() {
       <header className="border-b border-terminal-border bg-terminal-bg/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-terminal-accent font-mono text-sm hover:underline">
-            ← Back to OneShotCoding
+            ← Back to oneshotcoding
           </Link>
           <Link href="/terms" className="text-terminal-text-dim font-mono text-sm hover:text-terminal-text">
             Terms of Service
@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
               1. Data We Collect
             </h2>
             <p className="text-terminal-text-dim leading-relaxed mb-3">
-              When you use OneShotCoding, we collect the following information:
+              When you use oneshotcoding, we collect the following information:
             </p>
             <ul className="list-disc list-inside text-terminal-text-dim space-y-2 ml-4">
               <li>
@@ -191,7 +191,7 @@ export default function PrivacyPolicyPage() {
               8. Children&apos;s Privacy
             </h2>
             <p className="text-terminal-text-dim leading-relaxed">
-              OneShotCoding is not intended for users under the age of 13. We do not knowingly collect
+              oneshotcoding is not intended for users under the age of 13. We do not knowingly collect
               data from children under 13. If you believe a child has provided us with personal data,
               please contact us immediately.
             </p>

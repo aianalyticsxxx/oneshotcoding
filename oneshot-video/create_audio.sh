@@ -1,5 +1,5 @@
 #!/bin/bash
-# Create sound effects for the OneShotCoding launch video
+# Create sound effects for the oneshotcoding launch video
 # Timeline:
 # 0.0s - Scene 1: Terminal typing
 # 4.5s - Flash + Scene 2: Big "1" slam

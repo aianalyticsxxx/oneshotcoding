@@ -16,8 +16,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'OneShotCoding Admin',
-  description: 'Admin panel for OneShotCoding platform',
+  title: 'oneshotcoding Admin',
+  description: 'Admin panel for oneshotcoding platform',
   robots: 'noindex, nofollow',
 };
 

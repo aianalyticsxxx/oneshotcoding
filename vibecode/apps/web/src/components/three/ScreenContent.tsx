@@ -87,7 +87,7 @@ export function ScreenContent() {
           color: '#F5F5F5',
         }}
       >
-        OneShotCoding
+        oneshotcoding
       </h1>
 
       {/* Tagline */}

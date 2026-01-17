@@ -9,7 +9,7 @@ export default function TermsOfServicePage() {
       <header className="border-b border-terminal-border bg-terminal-bg/95 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="text-terminal-accent font-mono text-sm hover:underline">
-            ← Back to OneShotCoding
+            ← Back to oneshotcoding
           </Link>
           <Link href="/privacy" className="text-terminal-text-dim font-mono text-sm hover:text-terminal-text">
             Privacy Policy
@@ -28,7 +28,7 @@ export default function TermsOfServicePage() {
               1. Acceptance of Terms
             </h2>
             <p className="text-terminal-text-dim leading-relaxed">
-              By accessing or using OneShotCoding (&quot;the Service&quot;), you agree to be bound by these Terms of Service.
+              By accessing or using oneshotcoding (&quot;the Service&quot;), you agree to be bound by these Terms of Service.
               If you do not agree to these terms, please do not use the Service.
             </p>
           </section>
@@ -38,7 +38,7 @@ export default function TermsOfServicePage() {
               2. User Responsibilities
             </h2>
             <p className="text-terminal-text-dim leading-relaxed mb-3">
-              As a user of OneShotCoding, you agree to:
+              As a user of oneshotcoding, you agree to:
             </p>
             <ul className="list-disc list-inside text-terminal-text-dim space-y-2 ml-4">
               <li>Provide accurate information when creating your account</li>
@@ -54,7 +54,7 @@ export default function TermsOfServicePage() {
               3. Content Ownership & License
             </h2>
             <p className="text-terminal-text-dim leading-relaxed mb-3">
-              You retain ownership of the content you create and share on OneShotCoding. By posting content,
+              You retain ownership of the content you create and share on oneshotcoding. By posting content,
               you grant us a non-exclusive, worldwide, royalty-free license to use, display, and distribute
               your content within the Service.
             </p>
@@ -69,7 +69,7 @@ export default function TermsOfServicePage() {
               4. Prohibited Content
             </h2>
             <p className="text-terminal-text-dim leading-relaxed mb-3">
-              The following content is strictly prohibited on OneShotCoding:
+              The following content is strictly prohibited on oneshotcoding:
             </p>
             <ul className="list-disc list-inside text-terminal-text-dim space-y-2 ml-4">
               <li>Illegal content or content promoting illegal activities</li>
@@ -102,7 +102,7 @@ export default function TermsOfServicePage() {
               6. Limitation of Liability
             </h2>
             <p className="text-terminal-text-dim leading-relaxed">
-              OneShotCoding is provided &quot;as is&quot; without warranties of any kind. We are not liable for any
+              oneshotcoding is provided &quot;as is&quot; without warranties of any kind. We are not liable for any
               damages arising from your use of the Service, including but not limited to direct, indirect,
               incidental, consequential, or punitive damages. Your use of the Service is at your own risk.
             </p>

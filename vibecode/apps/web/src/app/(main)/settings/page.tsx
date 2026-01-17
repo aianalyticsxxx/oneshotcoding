@@ -316,7 +316,7 @@ export default function SettingsPage() {
           transition={{ delay: 0.4 }}
           className="text-center text-terminal-text-dim/50 text-xs mt-6 font-mono"
         >
-          OneShotCoding v1.0
+          oneshotcoding v1.0
         </motion.p>
       </div>
 

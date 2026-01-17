@@ -4,7 +4,7 @@
 ```
 One prompt. One response. Ship it.
 
-OneShotCoding is where vibecoders come to test their skills, compete in daily challenges, and level up their prompting game.
+oneshotcoding is where vibecoders come to test their skills, compete in daily challenges, and level up their prompting game.
 
 Join the community. Earn rewards. Get better.
 
